@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/luyafei/GitHub/lu_net/include/function.h
+iostream
+-
+eigen3/Eigen/Dense
+-
+
+/Users/luyafei/GitHub/lu_net/include/net.h
+vector
+-
+string.h
+-
+eigen3/Eigen/Dense
+-
+
+/Users/luyafei/GitHub/lu_net/main.cpp
+iostream
+-
+opencv2/opencv.hpp
+-
+include/net.h
+/Users/luyafei/GitHub/lu_net/include/net.h
+
+/Users/luyafei/GitHub/lu_net/src/function.cpp
+../include/function.h
+/Users/luyafei/GitHub/lu_net/include/function.h
+eigen3/Eigen/Dense
+-
+
+/Users/luyafei/GitHub/lu_net/src/net.cpp
+iostream
+-
+../include/net.h
+/Users/luyafei/GitHub/lu_net/include/net.h
+eigen3/Eigen/Dense
+-
+../include/function.h
+/Users/luyafei/GitHub/lu_net/include/function.h
+

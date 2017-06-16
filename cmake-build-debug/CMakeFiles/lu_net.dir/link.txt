@@ -1,0 +1,1 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/lu_net.dir/main.cpp.o CMakeFiles/lu_net.dir/src/net.cpp.o CMakeFiles/lu_net.dir/src/function.cpp.o  -o lu_net 
