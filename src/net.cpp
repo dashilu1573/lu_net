@@ -57,7 +57,7 @@ namespace lu_net {
     void Net::farward(VectorXf x) {
         layers[0] = x;
 
-        for (int i = 1; i < num_layers - 1; i++){
+        for (int i = 1; i < num_layers; i++){
             //weighted input
             VectorXf z = weights[i] * layers[i - 1] + bias[i];
             zs[i] = z;
@@ -79,12 +79,12 @@ namespace lu_net {
      * */
     VectorXf Net::backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b) {
         //最后一层的error
-        VectorXf delta = cost_derivative(layers[num_layers - 1], y) * sigmoid_prime(zs[]);
+        VectorXf delta = cost_derivative(layers[num_layers - 1], y) * sigmoid_prime(zs[num_layers -1]);
         nabla_b[num_layers - 1] = delta;
         nabla_w[num_layers - 1] = delta * layers[num_layers -2].transpose();
 
         for (int i = num_layers - 2; i >= 1; i--) {
-            delta = (weights[i + 1].transpose() * delta).arry() * sigmoid_prime(zs[i]);
+            delta = (weights[i + 1].transpose() * delta).array() * sigmoid_prime(zs[i]).array();
             nabla_b[i] = delta;
             nabla_w[i] = delta * layers[i - 1].transpose();
         }
@@ -94,7 +94,7 @@ namespace lu_net {
     /*Update the network's weights and biases by applying gradient descent using backpropagation to a single mini batch.
      * The mini_batch is a list of tuples (x, y), and lr is the learning rate.
      * */
-    void Net::update_batch(vector< pair<label_t, vector<vec_t> > > mini_batch_data, float lr) {
+    void Net::update_batch(vector< pair<label_t, tensor_t > > mini_batch_data, float lr) {
 
         int batch_size = mini_batch_data.size();
 
@@ -109,9 +109,9 @@ namespace lu_net {
         vector<VectorXf> delta_nabla_b;
 
         for(int i = 0; i < mini_batch_data.size(); i++) {
-            pair<label_t, vector<vec_t> > one = mini_batch_data[i];
-            farward(one.first);
-            backward(one.second, delta_nabla_w, delta_nabla_b);
+            pair<label_t, tensor_t> one = mini_batch_data[i];
+            //farward(one.first);
+            //backward(one.second, delta_nabla_w, delta_nabla_b);
 
             //将一批样本的改变累加到一起
             for (int j = 1; j < num_layers; ++j) {

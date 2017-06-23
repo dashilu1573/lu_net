@@ -57,7 +57,7 @@ namespace lu_net {
         vector<VectorXf> zs;    //store all the z vectors(weighted input), layer by layer
 
 
-        void Net::update_batch(vector< pair<label_t, vector<vec_t> > > mini_batch_data, float lr);
+        void update_batch(vector< pair<label_t, tensor_t > > mini_batch_data, float lr);
 
         //Backward
         void farward(VectorXf x);

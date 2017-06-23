@@ -15,7 +15,6 @@ int main(int argc, char** argv) {
     net.initWeights(0);
     net.initBias(0);
 
-
     // load MNIST dataset
     string data_dir = "./data";
     vector<label_t> train_labels, test_labels;

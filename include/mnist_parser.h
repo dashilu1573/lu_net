@@ -2,9 +2,10 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "net.h"
 
 using namespace std;
-
+using namespace lu_net;
 
 int ReverseInt(int i) {
     unsigned char ch1, ch2, ch3, ch4;
