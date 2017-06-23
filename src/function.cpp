@@ -14,7 +14,7 @@ namespace lu_net {
         return res;
     }
 
-    //relu functi
+    //relu function
     VectorXf relu(const VectorXf &x){
         VectorXf res = x.array().max(0.0).matrix();
         return res;
@@ -29,6 +29,11 @@ namespace lu_net {
         //loss
         float err_sum = square_error.sum();
         loss = err_sum / (float)output.rows();
+    }
+
+    //Derivative of the sigmoid function.
+    VectorXf sigmoid_prime(const VectorXf &z) {
+        return sigmoid(z).array * (1 - sigmoid(z).array());
     }
 }
 

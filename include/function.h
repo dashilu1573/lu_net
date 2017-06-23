@@ -18,6 +18,8 @@ namespace lu_net{
     //relu function
     VectorXf relu(const VectorXf &x);
 
+    VectorXf sigmoid_prime(const VectorXf &z);
+
     //Objective function
     void calcLoss(const VectorXf &output, const VectorXf &target, VectorXf &output_error, float &loss);
 }
