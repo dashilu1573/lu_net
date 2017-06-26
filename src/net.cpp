@@ -8,7 +8,6 @@
 #include "../include/function.h"
 #include "../include/io.h"
 
-
 using namespace std;
 using namespace Eigen;
 
@@ -75,7 +74,8 @@ namespace lu_net {
     }
 
 
-    /*compute the w and b gradient of the cost function C_x
+    /**
+     * compute the w and b gradient of the cost function C_x
      * */
     VectorXf Net::backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b) {
         //最后一层的error
@@ -91,13 +91,11 @@ namespace lu_net {
     }
 
 
-    /*Update the network's weights and biases by applying gradient descent using backpropagation to a single mini batch.
+    /**
+     * Update the network's weights and biases by applying gradient descent using backpropagation to a single mini batch.
      * The mini_batch is a list of tuples (x, y), and lr is the learning rate.
      * */
-    void Net::update_batch(vector< pair<label_t, tensor_t > > mini_batch_data, float lr) {
-
-        int batch_size = mini_batch_data.size();
-
+    void Net::update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size) {
         vector<MatrixXf> acum_nabla_w;
         acum_nabla_w.resize(num_layers);
 
@@ -108,8 +106,7 @@ namespace lu_net {
         vector<MatrixXf> delta_nabla_w;
         vector<VectorXf> delta_nabla_b;
 
-        for(int i = 0; i < mini_batch_data.size(); i++) {
-            pair<label_t, tensor_t> one = mini_batch_data[i];
+        for(int i = 0; i < batch_size; i++) {
             //farward(one.first);
             //backward(one.second, delta_nabla_w, delta_nabla_b);
 
@@ -122,12 +119,55 @@ namespace lu_net {
 
         //一批样本改变的平均值作为最后的改变
         for (int k = 1; k < num_layers; ++k) {
-            weights[k] = weights[k] - lr / batch_size * acum_nabla_w[k];
-            bias[k] = bias[k] - lr / batch_size * acum_nabla_b[k];
+            weights[k] = weights[k] - learning_rate / batch_size * acum_nabla_w[k];
+            bias[k] = bias[k] - learning_rate / batch_size * acum_nabla_b[k];
         }
     }
 
 
+    /**
+    * trains on one minibatch, i.e. runs forward and backward propagation to calculate
+    * the gradient of the loss function with respect to the network parameters (weights),
+    * then calls the optimizer algorithm to update the weights
+    *
+    * @param batch_size the number of data points to use in this batch
+    */
+    void Net::train_onebatch(const tensor_t* in, const tensor_t* t, int batch_size) {
+        vector<tensor_t> in_batch(&in[0], &in[0] + batch_size);
+        vector<tensor_t> t_batch(&t[0], &t[0] + batch_size);
+
+        update_batch(in_batch, t_batch, batch_size);
+    }
+
+
+    /**
+    * train on one minibatch
+    *
+    * @param size is the number of data points to use in this batch
+    */
+    void Net::train_once(const tensor_t *in,
+                    const tensor_t *t,
+                    int size) {
+        if (size == 1) {
+            ;
+        } else {
+            train_onebatch(in, t, size);
+        }
+    }
+
+
+    /**
+     * trains the network for a fixed number of epochs (for classification task)
+     *
+     * This method takes label_t argument and convert to target vector automatically.
+     * To train correctly, output dimension of last layer must be greater or equal to
+     * number of label-ids.
+     *
+     * @param inputs             array of input data
+     * @param class_labels       array of label-id for each input data(0-origin)
+     * @param batch_size         number of samples per parameter update
+     * @param epoch              number of training epochs
+     */
     bool Net::train(const std::vector<vec_t> &inputs, const std::vector<label_t> &class_labels, int batch_size, int epoch) {
         if (inputs.size() != class_labels.size()) {
             return false;
@@ -135,9 +175,21 @@ namespace lu_net {
         if (inputs.size() < batch_size || class_labels.size() < batch_size) {
             return false;
         }
+
+        //转化成tensor_t类型
         std::vector<tensor_t> input_tensor, output_tensor, t_cost_tensor;
         normalize_tensor(inputs, input_tensor);
         normalize_tensor(class_labels, output_tensor);
-    }
 
+        for (int iter = 0; iter < epoch; iter++) {
+            for (int i = 0; i < inputs.size(); i += batch_size) {
+                train_once(&input_tensor[i], &output_tensor[i],
+                                  static_cast<int>(min(batch_size, inputs.size() - i)));
+            }
+        }
+
+        cout << "end training." << endl;
+
+        return true;
+    }
 }

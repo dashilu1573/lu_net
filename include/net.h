@@ -56,8 +56,41 @@ namespace lu_net {
         vector<VectorXf> gradient;
         vector<VectorXf> zs;    //store all the z vectors(weighted input), layer by layer
 
+        /**
+        * train on one minibatch
+        *
+        * @param size is the number of data points to use in this batch
+        */
+        void train_once(const tensor_t *in,
+                             const tensor_t *t,
+                             int size);
 
-        void update_batch(vector< pair<label_t, tensor_t > > mini_batch_data, float lr);
+        /**
+        * trains on one minibatch, i.e. runs forward and backward propagation to calculate
+        * the gradient of the loss function with respect to the network parameters (weights),
+        * then calls the optimizer algorithm to update the weights
+        *
+        * @param batch_size the number of data points to use in this batch
+        */
+        void train_onebatch(const tensor_t* in,
+                                 const tensor_t* t,
+                                 int batch_size);
+
+        void update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size);
+
+        /**
+        * trains the network for a fixed number of epochs (for classification task)
+        *
+        * This method takes label_t argument and convert to target vector automatically.
+        * To train correctly, output dimension of last layer must be greater or equal to
+        * number of label-ids.
+        *
+        * @param inputs             array of input data
+        * @param class_labels       array of label-id for each input data(0-origin)
+        * @param batch_size         number of samples per parameter update
+        * @param epoch              number of training epochs
+        */
+        bool train(const std::vector<vec_t> &inputs, const std::vector<label_t> &class_labels, int batch_size, int epoch);
 
         //Backward
         void farward(VectorXf x);

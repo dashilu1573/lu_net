@@ -31,6 +31,7 @@ void normalize_tensor(const std::vector<vec_t> &inputs,
                       std::vector<tensor_t> &normalized) {
     normalized.reserve(inputs.size());
     for (size_t i = 0; i < inputs.size(); i++)
+        //emplace_back和push_back都是向容器内添加数据，emplace_back更高效
         normalized.emplace_back(tensor_t{inputs[i]});
 }
 

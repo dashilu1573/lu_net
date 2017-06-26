@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     net.initBias(0);
 
     // load MNIST dataset
-    string data_dir = "./data";
+    string data_dir = "/Users/luyafei/GitHub/lu_net/data";
     vector<label_t> train_labels, test_labels;
     vector<vec_t> train_images, test_images;
 
@@ -25,9 +25,9 @@ int main(int argc, char** argv) {
     string test_labels_path  = data_dir + "/t10k-labels.idx1-ubyte";
     string test_images_path  = data_dir + "/t10k-images.idx3-ubyte";
 
-    //read_Mnist_Label(train_labels_path, train_labels);
+    read_Mnist_Label(train_labels_path, train_labels);
     read_Mnist_Images(train_images_path, train_images);
-    //read_Mnist_Label(test_labels_path, test_labels);
+    read_Mnist_Label(test_labels_path, test_labels);
     read_Mnist_Images(test_images_path, test_images);
 
     std::cout << "start learning" << std::endl;
