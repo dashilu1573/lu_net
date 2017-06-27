@@ -96,16 +96,28 @@ namespace lu_net {
      * The mini_batch is a list of tuples (x, y), and lr is the learning rate.
      * */
     void Net::update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size) {
+        //累加到一起的改变
         vector<MatrixXf> acum_nabla_w;
         acum_nabla_w.resize(num_layers);
 
         vector<VectorXf> acum_nabla_b;
         acum_nabla_b.resize(num_layers);
 
-        vector<MatrixXf> delta_nabla_w;
-        vector<VectorXf> delta_nabla_b;
+        //初始化全零
+        for (int i = 1; i < num_layers; i++) {
+            acum_nabla_w[i] = MatrixXf::Zero(layers[i].rows(), layers[i - 1].rows());
+            acum_nabla_b[i] = VectorXf::Zero(layers[i].rows());
+        }
 
+        vector<MatrixXf> delta_nabla_w;
+        delta_nabla_w.resize(num_layers);
+
+        vector<VectorXf> delta_nabla_b;
+        delta_nabla_b.resize(num_layers);
+
+        //一个样本一个样本的训练
         for(int i = 0; i < batch_size; i++) {
+            //从std::vector转成Eigen形式
             //VectorXf x(&in[i][0], in[i][0].size());
             VectorXf x(in[i][0].size());
             VectorXf y(t[i][0].size());
@@ -121,7 +133,7 @@ namespace lu_net {
             farward(x, y);
             backward(y, delta_nabla_w, delta_nabla_b);
 
-            //将一批样本的改变累加到一起
+            //每个样本的改变累加到一起
             for (int j = 1; j < num_layers; ++j) {
                 acum_nabla_w[j] = acum_nabla_w[j] + delta_nabla_w[j];
                 acum_nabla_b[j] = acum_nabla_b[j] + delta_nabla_b[j];
@@ -193,6 +205,7 @@ namespace lu_net {
         normalize_tensor(class_labels, output_tensor);
 
         for (int iter = 0; iter < epoch; iter++) {
+            cout << "epoch:" << iter << endl;
             for (int i = 0; i < inputs.size(); i += batch_size) {
                 train_once(&input_tensor[i], &output_tensor[i],
                                   static_cast<int>(min<int>(batch_size, inputs.size() - i)));
