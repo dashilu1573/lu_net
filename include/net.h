@@ -30,7 +30,6 @@ namespace lu_net {
         float learning_rate = 0.0;
         float accuray = 0.0;
         float loss = 0.0;
-        VectorXf target;
         VectorXf output_error;
         vector<float> loss_vec;    //save for draw loss curve
         int output_interval = 0;    //训练中间输出loss
@@ -46,8 +45,19 @@ namespace lu_net {
         //Initial the bias matrices
         void initBias(const double w = 0);
 
-        bool train(const std::vector<vec_t> &inputs, const std::vector<label_t> &class_labels, int batch_size,
-                   int epoch);
+        /**
+         * trains the network for a fixed number of epochs (for classification task)
+         *
+         * This method takes label_t argument and convert to target vector automatically.
+         * To train correctly, output dimension of last layer must be greater or equal to
+         * number of label-ids.
+         *
+         * @param inputs             array of input data
+         * @param class_labels       array of label-id for each input data(0-origin)
+         * @param batch_size         number of samples per parameter update
+         * @param epoch              number of training epochs
+         */
+        bool train(const vector<vec_t> &inputs, const vector<label_t> &class_labels, int batch_size, int epoch);
 
     private:
         vector<VectorXf> layers;
@@ -78,27 +88,13 @@ namespace lu_net {
 
         void update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size);
 
-        /**
-        * trains the network for a fixed number of epochs (for classification task)
-        *
-        * This method takes label_t argument and convert to target vector automatically.
-        * To train correctly, output dimension of last layer must be greater or equal to
-        * number of label-ids.
-        *
-        * @param inputs             array of input data
-        * @param class_labels       array of label-id for each input data(0-origin)
-        * @param batch_size         number of samples per parameter update
-        * @param epoch              number of training epochs
-        */
-        bool train(const std::vector<vec_t> &inputs, const std::vector<label_t> &class_labels, int batch_size, int epoch);
-
         //Backward
-        void farward(VectorXf x);
+        void farward(VectorXf x, VectorXf y);
 
         VectorXf cost_derivative(VectorXf output_activations, VectorXf y);
 
         //Forward
-        VectorXf backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b);
+        void backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b);
     };
 }
 #endif //LU_NET_NET_H

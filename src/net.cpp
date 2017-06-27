@@ -53,7 +53,7 @@ namespace lu_net {
     }
 
     //farward
-    void Net::farward(VectorXf x) {
+    void Net::farward(VectorXf x, VectorXf y) {
         layers[0] = x;
 
         for (int i = 1; i < num_layers; i++){
@@ -64,7 +64,7 @@ namespace lu_net {
         }
 
         //caculate loss on output layer
-        calcLoss(layers[num_layers - 1], target, output_error, loss);
+        calcLoss(layers[num_layers - 1], y, output_error, loss);
     }
 
     /*compute the partial derivatives for the output activations.
@@ -77,9 +77,9 @@ namespace lu_net {
     /**
      * compute the w and b gradient of the cost function C_x
      * */
-    VectorXf Net::backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b) {
+    void Net::backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b) {
         //最后一层的error
-        VectorXf delta = cost_derivative(layers[num_layers - 1], y) * sigmoid_prime(zs[num_layers -1]);
+        VectorXf delta = cost_derivative(layers[num_layers - 1], y).array() * sigmoid_prime(zs[num_layers -1]).array();
         nabla_b[num_layers - 1] = delta;
         nabla_w[num_layers - 1] = delta * layers[num_layers -2].transpose();
 
@@ -102,13 +102,24 @@ namespace lu_net {
         vector<VectorXf> acum_nabla_b;
         acum_nabla_b.resize(num_layers);
 
-
         vector<MatrixXf> delta_nabla_w;
         vector<VectorXf> delta_nabla_b;
 
         for(int i = 0; i < batch_size; i++) {
-            //farward(one.first);
-            //backward(one.second, delta_nabla_w, delta_nabla_b);
+            //VectorXf x(&in[i][0], in[i][0].size());
+            VectorXf x(in[i][0].size());
+            VectorXf y(t[i][0].size());
+
+            for (int k = 0; k < in[i][0].size(); ++k) {
+                x[i] = in[i][0][k];
+            }
+
+            for (int k = 0; k < t[i][0].size(); ++k) {
+                y[i] = t[i][0][k];
+            }
+
+            farward(x, y);
+            backward(y, delta_nabla_w, delta_nabla_b);
 
             //将一批样本的改变累加到一起
             for (int j = 1; j < num_layers; ++j) {
@@ -149,7 +160,7 @@ namespace lu_net {
                     const tensor_t *t,
                     int size) {
         if (size == 1) {
-            ;
+
         } else {
             train_onebatch(in, t, size);
         }
@@ -168,7 +179,7 @@ namespace lu_net {
      * @param batch_size         number of samples per parameter update
      * @param epoch              number of training epochs
      */
-    bool Net::train(const std::vector<vec_t> &inputs, const std::vector<label_t> &class_labels, int batch_size, int epoch) {
+    bool Net::train(const vector<vec_t> &inputs, const vector<label_t> &class_labels, int batch_size, int epoch) {
         if (inputs.size() != class_labels.size()) {
             return false;
         }
@@ -184,7 +195,7 @@ namespace lu_net {
         for (int iter = 0; iter < epoch; iter++) {
             for (int i = 0; i < inputs.size(); i += batch_size) {
                 train_once(&input_tensor[i], &output_tensor[i],
-                                  static_cast<int>(min(batch_size, inputs.size() - i)));
+                                  static_cast<int>(min<int>(batch_size, inputs.size() - i)));
             }
         }
 
