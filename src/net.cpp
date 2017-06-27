@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <unistd.h>
 #include "../include/net.h"
 #include <eigen3/Eigen/Dense>
 #include "../include/function.h"
@@ -15,7 +16,8 @@ namespace lu_net {
 
     void Net::initNet(std::vector<int> layers_neuron_num) {
         num_layers = layers_neuron_num.size();
-        fine_tune_factor = 1.01;    //设置学习率变化因子
+        learning_rate = 0.1;
+        fine_tune_factor = 0.09;    //设置学习率变化因子
         output_interval = 10;  //设置训练loss输出间隔
 
         // resize(int n,element)表示调整容器v的大小为n，调整后的每个元素的值为element，默认为0，
@@ -53,7 +55,7 @@ namespace lu_net {
     }
 
     //farward
-    void Net::farward(VectorXf x, VectorXf y) {
+    float Net::farward(VectorXf x, VectorXf y) {
         layers[0] = x;
 
         for (int i = 1; i < num_layers; i++){
@@ -64,7 +66,9 @@ namespace lu_net {
         }
 
         //caculate loss on output layer
+        float loss = 0;
         calcLoss(layers[num_layers - 1], y, output_error, loss);
+        return loss;
     }
 
     /*compute the partial derivatives for the output activations.
@@ -96,6 +100,9 @@ namespace lu_net {
      * The mini_batch is a list of tuples (x, y), and lr is the learning rate.
      * */
     void Net::update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size) {
+        //一批的loss
+        float batch_loss = 0.0;
+
         //累加到一起的改变
         vector<MatrixXf> acum_nabla_w;
         acum_nabla_w.resize(num_layers);
@@ -130,8 +137,10 @@ namespace lu_net {
                 y[i] = t[i][0][k];
             }
 
-            farward(x, y);
+            float loss = farward(x, y);
             backward(y, delta_nabla_w, delta_nabla_b);
+
+            batch_loss += loss;
 
             //每个样本的改变累加到一起
             for (int j = 1; j < num_layers; ++j) {
@@ -145,6 +154,8 @@ namespace lu_net {
             weights[k] = weights[k] - learning_rate / batch_size * acum_nabla_w[k];
             bias[k] = bias[k] - learning_rate / batch_size * acum_nabla_b[k];
         }
+
+        cout << "batch_loss:" << batch_loss << endl;
     }
 
 
@@ -204,11 +215,20 @@ namespace lu_net {
         normalize_tensor(inputs, input_tensor);
         normalize_tensor(class_labels, output_tensor);
 
+        //整个样本集训练epoch次
         for (int iter = 0; iter < epoch; iter++) {
             cout << "epoch:" << iter << endl;
+
             for (int i = 0; i < inputs.size(); i += batch_size) {
                 train_once(&input_tensor[i], &output_tensor[i],
                                   static_cast<int>(min<int>(batch_size, inputs.size() - i)));
+                sleep(1);
+            }
+
+            //改变学习速率
+            if (iter % 10 == 0)
+            {
+                learning_rate *= fine_tune_factor;
             }
         }
 

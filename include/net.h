@@ -29,7 +29,6 @@ namespace lu_net {
         int num_layers = 0;
         float learning_rate = 0.0;
         float accuray = 0.0;
-        float loss = 0.0;
         VectorXf output_error;
         vector<float> loss_vec;    //save for draw loss curve
         int output_interval = 0;    //训练中间输出loss
@@ -89,7 +88,7 @@ namespace lu_net {
         void update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size);
 
         //Backward
-        void farward(VectorXf x, VectorXf y);
+        float farward(VectorXf x, VectorXf y);
 
         VectorXf cost_derivative(VectorXf output_activations, VectorXf y);
 
