@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <eigen3/Eigen/Dense>
+#include <vector>
 
 using namespace std;
 using namespace Eigen;
@@ -21,7 +22,13 @@ namespace lu_net{
     VectorXf sigmoid_prime(const VectorXf &z);
 
     //Objective function
-    void calcLoss(const VectorXf &output, const VectorXf &target, VectorXf &output_error, float &loss);
+    float calcLoss(const VectorXf &output, const VectorXf &target, VectorXf &output_error);
+
+    template <typename T>
+    int max_index(const vector<T> &vec) {
+        auto begin_iterator = begin(vec);
+        return max_element(begin_iterator, end(vec)) - begin_iterator;
+    }
 }
 
 #endif //LU_NET_FUNCTION_H

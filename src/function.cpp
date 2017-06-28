@@ -21,14 +21,16 @@ namespace lu_net {
     }
 
     //Objective function
-    void calcLoss(const VectorXf &output, const VectorXf &target, VectorXf &output_error, float &loss){
+    float calcLoss(const VectorXf &output, const VectorXf &target, VectorXf &output_error){
         //square_error平方误差
-        output_error = target - output;
+        VectorXf output_error = target - output;
         VectorXf square_error = output_error.array().square();
 
         //loss
         float err_sum = square_error.sum();
-        loss = err_sum / (float)output.rows();
+        float loss = err_sum / (float)output.rows();
+
+        return loss;
     }
 
     //Derivative of the sigmoid function.

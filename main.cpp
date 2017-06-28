@@ -32,10 +32,19 @@ int main(int argc, char** argv) {
 
     std::cout << "start learning" << std::endl;
 
-    int minibatch_size = 10;
+    int minibatch_size = 100;
     int num_epochs = 30;
 
+    // training
     net.train(train_images, train_labels, minibatch_size, num_epochs);
+
+    std::cout << "end training." << std::endl;
+
+    // test and show results
+    net.test(test_images, test_labels);
+
+    // save network model & trained weights
+    net.save("LeNet-model");
 
     return 0;
 }

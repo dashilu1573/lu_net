@@ -17,8 +17,8 @@ namespace lu_net {
     void Net::initNet(std::vector<int> layers_neuron_num) {
         num_layers = layers_neuron_num.size();
         learning_rate = 0.1;
-        fine_tune_factor = 0.09;    //设置学习率变化因子
-        output_interval = 10;  //设置训练loss输出间隔
+        fine_tune_factor = 0.95;    //设置学习率变化因子
+        output_interval = 1;  //设置训练loss输出间隔,epoch为单位
 
         // resize(int n,element)表示调整容器v的大小为n，调整后的每个元素的值为element，默认为0，
         // resize()会改变容器的容量和当前元素个数
@@ -55,7 +55,7 @@ namespace lu_net {
     }
 
     //farward
-    float Net::farward(VectorXf x, VectorXf y) {
+    void Net::farward(VectorXf x) {
         layers[0] = x;
 
         for (int i = 1; i < num_layers; i++){
@@ -64,11 +64,6 @@ namespace lu_net {
             zs[i] = z;
             layers[i] = sigmoid(z);
         }
-
-        //caculate loss on output layer
-        float loss = 0;
-        calcLoss(layers[num_layers - 1], y, output_error, loss);
-        return loss;
     }
 
     /*compute the partial derivatives for the output activations.
@@ -100,9 +95,6 @@ namespace lu_net {
      * The mini_batch is a list of tuples (x, y), and lr is the learning rate.
      * */
     void Net::update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size) {
-        //一批的loss
-        float batch_loss = 0.0;
-
         //累加到一起的改变
         vector<MatrixXf> acum_nabla_w;
         acum_nabla_w.resize(num_layers);
@@ -122,6 +114,9 @@ namespace lu_net {
         vector<VectorXf> delta_nabla_b;
         delta_nabla_b.resize(num_layers);
 
+        //一个batch里的loss累加
+        float batch_sum_loss = 0.0;
+
         //一个样本一个样本的训练
         for(int i = 0; i < batch_size; i++) {
             //从std::vector转成Eigen形式
@@ -130,17 +125,18 @@ namespace lu_net {
             VectorXf y(t[i][0].size());
 
             for (int k = 0; k < in[i][0].size(); ++k) {
-                x[i] = in[i][0][k];
+                x[k] = in[i][0][k];
             }
 
             for (int k = 0; k < t[i][0].size(); ++k) {
-                y[i] = t[i][0][k];
+                y[k] = t[i][0][k];
             }
 
-            float loss = farward(x, y);
+            farward(x);
             backward(y, delta_nabla_w, delta_nabla_b);
 
-            batch_loss += loss;
+            float loss = calcLoss(layers[num_layers - 1], y, output_error);
+            batch_sum_loss += loss;
 
             //每个样本的改变累加到一起
             for (int j = 1; j < num_layers; ++j) {
@@ -155,7 +151,8 @@ namespace lu_net {
             bias[k] = bias[k] - learning_rate / batch_size * acum_nabla_b[k];
         }
 
-        cout << "batch_loss:" << batch_loss << endl;
+        //求loss平均值
+        batch_loss = batch_sum_loss / batch_size;
     }
 
 
@@ -222,18 +219,60 @@ namespace lu_net {
             for (int i = 0; i < inputs.size(); i += batch_size) {
                 train_once(&input_tensor[i], &output_tensor[i],
                                   static_cast<int>(min<int>(batch_size, inputs.size() - i)));
-                sleep(1);
             }
 
             //改变学习速率
-            if (iter % 10 == 0)
+            if (iter % output_interval == 0)
             {
                 learning_rate *= fine_tune_factor;
+                cout << "learning rate:" << learning_rate << endl;
+                cout << "batch_loss:" << batch_loss << endl;
             }
         }
 
-        cout << "end training." << endl;
+        cout << "End training." << endl;
 
         return true;
+    }
+
+    //Predict just one sample
+    int Net::predict_one(const vec_t &input){
+
+
+    }
+
+
+    /**
+    * test and generate confusion-matrix for classification task
+    **/
+    result Net::test(const std::vector<vec_t> &inputs, const std::vector<label_t> &class_labels) {
+        result test_result;
+
+        if (inputs.empty())
+        {
+            cout << "Test inputs is empty!" << endl;
+            return test_result;
+        }
+
+        cout << "Test begain!" << endl;
+
+
+        for (int i = 0; i < inputs.size(); i++) {
+            label_t predicted = predict_one(inputs[i]);
+            label_t actual = class_labels[i];
+
+            if (predicted == actual) {
+                test_result.num_success += 1;
+            }
+
+            test_result.num_total += 1;
+            test_result.confusion_matrix[predicted][actual]++;
+        }
+
+        return test_result;
+    }
+
+    label_t Net::fprop_max_index(const vec_t &in) {
+        return label_t(max_index(farward(in)));
     }
 }

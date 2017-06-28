@@ -19,6 +19,17 @@ namespace lu_net {
     typedef std::vector<float_t> vec_t;
     typedef std::vector<vec_t> tensor_t;
 
+    struct result{
+        result() : num_success(0), num_total(0) {}
+        int num_success;
+        int num_total;
+        vector<vector<int>> confusion_matrix;
+
+        float accuracy() const {
+            return float(num_success * 100.0 / num_total);
+        }
+    };
+
     class Net {
     public:
         Net() {};
@@ -28,9 +39,8 @@ namespace lu_net {
         vector<int> layers_neuron_num;
         int num_layers = 0;
         float learning_rate = 0.0;
-        float accuray = 0.0;
+        float batch_loss = 0.0; //一批样本的loss
         VectorXf output_error;
-        vector<float> loss_vec;    //save for draw loss curve
         int output_interval = 0;    //训练中间输出loss
         float fine_tune_factor = 0.0; //学习率调节因子
 
@@ -43,6 +53,9 @@ namespace lu_net {
 
         //Initial the bias matrices
         void initBias(const double w = 0);
+
+        //Predict just one sample
+        int predict_one(const vec_t &input);
 
         /**
          * trains the network for a fixed number of epochs (for classification task)
@@ -57,6 +70,8 @@ namespace lu_net {
          * @param epoch              number of training epochs
          */
         bool train(const vector<vec_t> &inputs, const vector<label_t> &class_labels, int batch_size, int epoch);
+
+        result test(const std::vector<vec_t> &inputs, const std::vector<label_t> &class_labels);
 
     private:
         vector<VectorXf> layers;
@@ -88,12 +103,15 @@ namespace lu_net {
         void update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size);
 
         //Backward
-        float farward(VectorXf x, VectorXf y);
+        void farward(VectorXf x);
 
         VectorXf cost_derivative(VectorXf output_activations, VectorXf y);
 
         //Forward
         void backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b);
+
+        label_t fprop_max_index(const vec_t &in);
+
     };
 }
 #endif //LU_NET_NET_H
