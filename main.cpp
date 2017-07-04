@@ -7,6 +7,7 @@ using namespace std;
 using namespace cv;
 using namespace lu_net;
 
+
 int main(int argc, char** argv) {
     vector<int> layers_neuron_num = {784, 30, 10};
 
@@ -30,21 +31,20 @@ int main(int argc, char** argv) {
     read_Mnist_Label(test_labels_path, test_labels);
     read_Mnist_Images(test_images_path, test_images);
 
-    std::cout << "start learning" << std::endl;
+    cout << "Initial test." << endl;
+    result initial_test = net.test(test_images, test_labels);
+    cout << "Initial test accuracy:" << initial_test.accuracy() << endl;
 
+    cout << "start learning" << endl;
     int minibatch_size = 100;
-    int num_epochs = 30;
-
-    // training
+    int num_epochs = 1;
     net.train(train_images, train_labels, minibatch_size, num_epochs);
+    cout << "End training." << endl;
 
-    std::cout << "end training." << std::endl;
+    cout << "Start test." << endl;
+    result test_result = net.test(test_images, test_labels);
+    cout << "Test accuracy:" << test_result.accuracy() << endl;
 
-    // test and show results
-    net.test(test_images, test_labels);
-
-    // save network model & trained weights
-    net.save("LeNet-model");
-
+    net.save("lu_net.model", content_type::weights_and_model, file_format::json);
     return 0;
 }

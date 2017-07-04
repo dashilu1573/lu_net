@@ -8,6 +8,7 @@
 #include <vector>
 #include <string.h>
 #include <eigen3/Eigen/Dense>
+#include <map>
 
 using namespace std;
 using namespace Eigen;
@@ -19,11 +20,23 @@ namespace lu_net {
     typedef std::vector<float_t> vec_t;
     typedef std::vector<vec_t> tensor_t;
 
-    struct result{
+    enum class content_type {
+        weights,    //save/load the weights
+        model,      //save/load the network architecture
+        weights_and_model   //save/load both the weights and the architecture
+    };
+
+    enum class file_format {
+        binary,
+        json
+    };
+
+    struct result {
         result() : num_success(0), num_total(0) {}
+
         int num_success;
         int num_total;
-        vector<vector<int>> confusion_matrix;
+        map<label_t, map<label_t, int> > confusion_matrix;  //不用初始化？
 
         float accuracy() const {
             return float(num_success * 100.0 / num_total);
@@ -73,6 +86,10 @@ namespace lu_net {
 
         result test(const std::vector<vec_t> &inputs, const std::vector<label_t> &class_labels);
 
+        bool save(const string &filename,
+                  content_type what = content_type::weights_and_model,
+                  file_format format = file_format::binary);
+
     private:
         vector<VectorXf> layers;
         vector<MatrixXf> weights;
@@ -86,8 +103,8 @@ namespace lu_net {
         * @param size is the number of data points to use in this batch
         */
         void train_once(const tensor_t *in,
-                             const tensor_t *t,
-                             int size);
+                        const tensor_t *t,
+                        int size);
 
         /**
         * trains on one minibatch, i.e. runs forward and backward propagation to calculate
@@ -96,11 +113,11 @@ namespace lu_net {
         *
         * @param batch_size the number of data points to use in this batch
         */
-        void train_onebatch(const tensor_t* in,
-                                 const tensor_t* t,
-                                 int batch_size);
+        void train_onebatch(const tensor_t *in,
+                            const tensor_t *t,
+                            int batch_size);
 
-        void update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size);
+        void update_batch(const vector<tensor_t> &in, const vector<tensor_t> &t, int batch_size);
 
         //Backward
         void farward(VectorXf x);
@@ -110,8 +127,7 @@ namespace lu_net {
         //Forward
         void backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b);
 
-        label_t fprop_max_index(const vec_t &in);
-
+        label_t fprop_max_index(const VectorXf &in);
     };
 }
 #endif //LU_NET_NET_H

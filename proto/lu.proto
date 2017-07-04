@@ -1,0 +1,32 @@
+package lu_net;
+
+message NetParameterMsg {
+    repeated int32 layers_neuron_num = 1 [packed=true];
+}
+
+message ModelMsg {
+    optional float learning_rate = 1;
+    optional NetParameterMsg net_param = 2;
+}
+
+//eigen matrix
+message MatrixMsg {
+    required uint32 rows = 1;
+    // columns deduced by division. Data stored as column major
+    repeated float data = 2 [packed=true];
+}
+
+//eigen vector
+message VectorMsg {
+    repeated float data = 1 [packed=true];
+}
+
+message WeightsMsg {
+    repeated MatrixMsg weights = 2;
+    repeated VectorMsg bias = 3;
+}
+
+message ModelWeightsMsg{
+    optional ModelMsg model = 1;
+    optional WeightsMsg weights = 2;
+}

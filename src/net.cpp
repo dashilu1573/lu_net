@@ -4,10 +4,13 @@
 
 #include <iostream>
 #include <unistd.h>
-#include "../include/net.h"
+#include "net.h"
 #include <eigen3/Eigen/Dense>
-#include "../include/function.h"
-#include "../include/io.h"
+#include <fstream>
+#include "function.h"
+#include "io.h"
+#include "../proto/lu.pb.h"
+#include "Matrix.h"
 
 using namespace std;
 using namespace Eigen;
@@ -15,6 +18,7 @@ using namespace Eigen;
 namespace lu_net {
 
     void Net::initNet(std::vector<int> layers_neuron_num) {
+        this->layers_neuron_num = layers_neuron_num;
         num_layers = layers_neuron_num.size();
         learning_rate = 0.1;
         fine_tune_factor = 0.95;    //设置学习率变化因子
@@ -221,7 +225,7 @@ namespace lu_net {
                                   static_cast<int>(min<int>(batch_size, inputs.size() - i)));
             }
 
-            //改变学习速率
+            //change learning rate
             if (iter % output_interval == 0)
             {
                 learning_rate *= fine_tune_factor;
@@ -233,12 +237,6 @@ namespace lu_net {
         cout << "End training." << endl;
 
         return true;
-    }
-
-    //Predict just one sample
-    int Net::predict_one(const vec_t &input){
-
-
     }
 
 
@@ -254,11 +252,14 @@ namespace lu_net {
             return test_result;
         }
 
-        cout << "Test begain!" << endl;
-
-
         for (int i = 0; i < inputs.size(); i++) {
-            label_t predicted = predict_one(inputs[i]);
+            //change inputs format from vector toVectorXf
+            VectorXf x(inputs[i].size());
+            for (int k = 0; k < inputs[i].size(); ++k) {
+                x[k] = inputs[i][k];
+            }
+
+            label_t predicted = fprop_max_index(x);
             label_t actual = class_labels[i];
 
             if (predicted == actual) {
@@ -272,7 +273,79 @@ namespace lu_net {
         return test_result;
     }
 
-    label_t Net::fprop_max_index(const vec_t &in) {
-        return label_t(max_index(farward(in)));
+
+    /**
+     * farward prop and retun the index of last layer
+     */
+    label_t Net::fprop_max_index(const VectorXf &in) {
+        farward(in);
+        int max_index = 0;
+        layers[num_layers - 1].maxCoeff(&max_index);
+        return label_t(max_index);
+    }
+
+    /**
+     * sava model
+     */
+    bool Net::save(const string &filename,
+                   content_type what,
+                   file_format format) {
+        // Verify that the version of the library that we linked against is
+        // compatible with the version of the headers we compiled against.
+        GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+        /***************save model param*************/
+        ModelMsg *modelMsg = new ModelMsg();
+        //内嵌对象必须用new的方式，否则后面set_allocated引起的double Free Core Dump
+        NetParameterMsg* netParameterMsg = new NetParameterMsg();
+        for (int i = 0; i < layers_neuron_num.size(); ++i) {
+            //repeated tag use add operation repeatedly
+            //repeated的基本数据类型使用add直接添加
+            netParameterMsg->add_layers_neuron_num(layers_neuron_num[i]);
+        }
+        modelMsg->set_learning_rate(learning_rate);
+        modelMsg->set_allocated_net_param(netParameterMsg);
+
+        /****************save weights*************/
+        WeightsMsg *weightsMsg = new WeightsMsg();
+        for (int i = 1; i < num_layers; ++i) {
+            //repeated tag use add operation repeatedly
+            //repeated的内嵌对象类型使用add传指针出来添加
+            MatrixMsg *weightsData = weightsMsg->add_weights();
+            VectorMsg *biasData = weightsMsg->add_bias();
+            WriteMatrix(weights[i], weightsData);
+            WriteVector(bias[i], biasData);
+        }
+
+        /***************save model and weights*****************/
+        ModelWeightsMsg modelWeightsMsg;
+        modelWeightsMsg.set_allocated_model(modelMsg);
+        modelWeightsMsg.set_allocated_weights(weightsMsg);
+
+        if (format == file_format::json) {
+            switch (what) {
+                case content_type::weights_and_model :
+                    WriteProtoToTextFile(modelWeightsMsg, filename.c_str());
+                case content_type::weights :
+                    WriteProtoToTextFile(*weightsMsg, filename.c_str());
+                case content_type::model :
+                    WriteProtoToTextFile(*modelMsg, filename.c_str());
+            }
+        }
+        else if (format == file_format::binary) {
+            switch (what) {
+                case content_type::weights_and_model :
+                    WriteProtoToBinaryFile(modelWeightsMsg, filename.c_str());
+                case content_type::weights :
+                    WriteProtoToBinaryFile(*weightsMsg, filename.c_str());
+                case content_type::model :
+                    WriteProtoToBinaryFile(*modelMsg, filename.c_str());
+            }
+        }
+
+        // Optional:  Delete all global objects allocated by libprotobuf.
+        google::protobuf::ShutdownProtobufLibrary();
+
+        return 0;
     }
 }

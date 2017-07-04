@@ -1,7 +1,7 @@
 //
 // Created by 芦yafei  on 17/6/12.
 //
-#include "../include/function.h"
+#include "function.h"
 #include <eigen3/Eigen/Dense>
 
 using namespace std;
@@ -23,7 +23,7 @@ namespace lu_net {
     //Objective function
     float calcLoss(const VectorXf &output, const VectorXf &target, VectorXf &output_error){
         //square_error平方误差
-        VectorXf output_error = target - output;
+        output_error = target - output;
         VectorXf square_error = output_error.array().square();
 
         //loss
