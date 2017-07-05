@@ -11,6 +11,7 @@
 #include "io.h"
 #include "../proto/lu.pb.h"
 #include "Matrix.h"
+#include "loss_function.h"
 
 using namespace std;
 using namespace Eigen;
@@ -20,8 +21,8 @@ namespace lu_net {
     void Net::initNet(std::vector<int> layers_neuron_num) {
         this->layers_neuron_num = layers_neuron_num;
         num_layers = layers_neuron_num.size();
-        learning_rate = 0.1;
-        fine_tune_factor = 0.95;    //设置学习率变化因子
+        learning_rate = 3.0;
+        fine_tune_factor = 1;    //设置学习率变化因子
         output_interval = 1;  //设置训练loss输出间隔,epoch为单位
 
         // resize(int n,element)表示调整容器v的大小为n，调整后的每个元素的值为element，默认为0，
@@ -98,6 +99,7 @@ namespace lu_net {
      * Update the network's weights and biases by applying gradient descent using backpropagation to a single mini batch.
      * The mini_batch is a list of tuples (x, y), and lr is the learning rate.
      * */
+    template <typename E>
     void Net::update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size) {
         //累加到一起的改变
         vector<MatrixXf> acum_nabla_w;
@@ -139,7 +141,7 @@ namespace lu_net {
             farward(x);
             backward(y, delta_nabla_w, delta_nabla_b);
 
-            float loss = calcLoss(layers[num_layers - 1], y, output_error);
+            float loss = E::f(layers[num_layers - 1], y);
             batch_sum_loss += loss;
 
             //每个样本的改变累加到一起
@@ -171,7 +173,7 @@ namespace lu_net {
         vector<tensor_t> in_batch(&in[0], &in[0] + batch_size);
         vector<tensor_t> t_batch(&t[0], &t[0] + batch_size);
 
-        update_batch(in_batch, t_batch, batch_size);
+        update_batch<mse>(in_batch, t_batch, batch_size);
     }
 
 
@@ -221,6 +223,7 @@ namespace lu_net {
             cout << "epoch:" << iter << endl;
 
             for (int i = 0; i < inputs.size(); i += batch_size) {
+                // train on one minibatch
                 train_once(&input_tensor[i], &output_tensor[i],
                                   static_cast<int>(min<int>(batch_size, inputs.size() - i)));
             }

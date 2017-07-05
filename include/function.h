@@ -22,7 +22,7 @@ namespace lu_net{
     VectorXf sigmoid_prime(const VectorXf &z);
 
     //Objective function
-    float calcLoss(const VectorXf &output, const VectorXf &target, VectorXf &output_error);
+    float calcLoss(const VectorXf &output, const VectorXf &target);
 
     template <typename T>
     int max_index(const vector<T> &vec) {

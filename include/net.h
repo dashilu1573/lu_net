@@ -53,7 +53,6 @@ namespace lu_net {
         int num_layers = 0;
         float learning_rate = 0.0;
         float batch_loss = 0.0; //一批样本的loss
-        VectorXf output_error;
         int output_interval = 0;    //训练中间输出loss
         float fine_tune_factor = 0.0; //学习率调节因子
 
@@ -117,6 +116,7 @@ namespace lu_net {
                             const tensor_t *t,
                             int batch_size);
 
+        template <typename E>
         void update_batch(const vector<tensor_t> &in, const vector<tensor_t> &t, int batch_size);
 
         //Backward

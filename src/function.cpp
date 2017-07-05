@@ -21,9 +21,9 @@ namespace lu_net {
     }
 
     //Objective function
-    float calcLoss(const VectorXf &output, const VectorXf &target, VectorXf &output_error){
+    float calcLoss(const VectorXf &output, const VectorXf &target){
         //square_error平方误差
-        output_error = target - output;
+        VectorXf output_error = target - output;
         VectorXf square_error = output_error.array().square();
 
         //loss
