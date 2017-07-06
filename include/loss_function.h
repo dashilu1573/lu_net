@@ -28,8 +28,9 @@ namespace lu_net {
         // gradient
         static VectorXf df(const VectorXf &output, const VectorXf &target) {
             assert(output.size() == target.size());
-            float_t factor = 2.0 / static_cast<float_t>(target.size());
+            //float_t factor = 2.0 / static_cast<float_t>(target.size()); ????不知为何要
 
+            float_t factor = 1.0;
             return factor * (output - target);
         }
     };
