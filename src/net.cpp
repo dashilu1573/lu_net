@@ -81,9 +81,11 @@ namespace lu_net {
     /**
      * compute the w and b gradient of the cost function C_x
      * */
+    template <typename E>
     void Net::backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b) {
         //最后一层的error
-        VectorXf delta = cost_derivative(layers[num_layers - 1], y).array() * sigmoid_prime(zs[num_layers -1]).array();
+        //VectorXf delta = cost_derivative(layers[num_layers - 1], y).array() * sigmoid_prime(zs[num_layers -1]).array();
+        VectorXf delta = E::df(layers[num_layers - 1], y).array() * sigmoid_prime(zs[num_layers -1]).array();
         nabla_b[num_layers - 1] = delta;
         nabla_w[num_layers - 1] = delta * layers[num_layers -2].transpose();
 
@@ -139,7 +141,7 @@ namespace lu_net {
             }
 
             farward(x);
-            backward(y, delta_nabla_w, delta_nabla_b);
+            backward<E>(y, delta_nabla_w, delta_nabla_b);
 
             float loss = E::f(layers[num_layers - 1], y);
             batch_sum_loss += loss;

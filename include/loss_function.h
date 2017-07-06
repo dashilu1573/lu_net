@@ -26,15 +26,11 @@ namespace lu_net {
         }
 
         // gradient
-        static vec_t df(const vec_t& y, const vec_t& t) {
-            assert(y.size() == t.size());
-            vec_t d(t.size());
-            float_t factor = float_t(2) / static_cast<float_t>(t.size());
+        static VectorXf df(const VectorXf &output, const VectorXf &target) {
+            assert(output.size() == target.size());
+            float_t factor = 2.0 / static_cast<float_t>(target.size());
 
-            for(int i = 0; i < y.size(); ++i)
-                d[i] = factor * (y[i] - t[i]);
-
-            return d;
+            return factor * (output - target);
         }
     };
 
