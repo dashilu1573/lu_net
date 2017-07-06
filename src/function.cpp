@@ -20,19 +20,6 @@ namespace lu_net {
         return res;
     }
 
-    //Objective function
-    float calcLoss(const VectorXf &output, const VectorXf &target){
-        //square_error平方误差
-        VectorXf output_error = target - output;
-        VectorXf square_error = output_error.array().square();
-
-        //loss
-        float err_sum = square_error.sum();
-        float loss = err_sum / (float)output.rows();
-
-        return loss;
-    }
-
     //Derivative of the sigmoid function.
     VectorXf sigmoid_prime(const VectorXf &z) {
         return sigmoid(z).array() * (1 - sigmoid(z).array());
