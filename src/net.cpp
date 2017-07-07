@@ -223,6 +223,7 @@ namespace lu_net {
         //整个样本集训练epoch次
         for (int iter = 0; iter < epoch; iter++) {
             cout << "epoch:" << iter << endl;
+            cout << "learning rate:" << learning_rate << endl;
 
             for (int i = 0; i < inputs.size(); i += batch_size) {
                 // train on one minibatch
@@ -230,12 +231,12 @@ namespace lu_net {
                                   static_cast<int>(min<int>(batch_size, inputs.size() - i)));
             }
 
+            cout << "last batch_loss:" << batch_loss << endl;
+
             //change learning rate
             if (iter % output_interval == 0)
             {
                 learning_rate *= fine_tune_factor;
-                cout << "learning rate:" << learning_rate << endl;
-                cout << "batch_loss:" << batch_loss << endl;
             }
         }
 
