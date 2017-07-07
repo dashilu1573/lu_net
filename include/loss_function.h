@@ -77,21 +77,18 @@ namespace lu_net {
             assert(output.size() == target.size());
 
             // -( y*ln(a) + (1-y)*ln(1-a) )
-            float loss = ( target.array() * log(output.array()) +
+            float loss = -1.0 * ( target.array() * log(output.array()) +
                     (1.0 - target.array()) * log(1.0 - output.array()) ).matrix().sum();
 
             return loss;
         }
 
         // gradient
-        static vec_t df(const vec_t &y, const vec_t &t) {
-            assert(y.size() == t.size());
-            vec_t d(t.size());
+        static VectorXf df(const VectorXf &output, const VectorXf &target) {
+            assert(output.size() == target.size());
 
-            for (int i = 0; i < y.size(); ++i)
-                d[i] = (y[i] - t[i]) / (y[i] * (float_t(1) - y[i]));
-
-            return d;
+            // (a-y)/(a*(1-a))
+            return ((output.array() - target.array()) / (output.array() * (1.0 - output.array()))).matrix();
         }
     };
 

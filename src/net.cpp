@@ -21,7 +21,7 @@ namespace lu_net {
     void Net::initNet(std::vector<int> layers_neuron_num) {
         this->layers_neuron_num = layers_neuron_num;
         num_layers = layers_neuron_num.size();
-        learning_rate = 3.0;
+        learning_rate = 0.5;
         fine_tune_factor = 1;    //设置学习率变化因子
         output_interval = 1;  //设置训练loss输出间隔,epoch为单位
 
@@ -175,7 +175,7 @@ namespace lu_net {
         vector<tensor_t> in_batch(&in[0], &in[0] + batch_size);
         vector<tensor_t> t_batch(&t[0], &t[0] + batch_size);
 
-        update_batch<mse>(in_batch, t_batch, batch_size);
+        update_batch<cross_entropy>(in_batch, t_batch, batch_size);
     }
 
 
