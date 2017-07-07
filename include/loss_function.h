@@ -6,6 +6,7 @@
 #define LU_NET_LOSS_FUNCTION_H
 
 #include "net.h"
+#include <cmath>
 #include <eigen3/Eigen/Dense>
 
 namespace lu_net {
@@ -72,14 +73,29 @@ namespace lu_net {
     // cross-entropy loss function for (multiple independent) binary classifications
     class cross_entropy {
     public:
+        // define function to be applied coefficient-wise
+        static float_t nan_to_num(float_t x)
+        {
+            if (std::isfinite(x))
+                return x;
+            else
+                return 0;
+        }
+
         // Return the cost associated with an output and desired output target
         static float_t f(const VectorXf &output, const VectorXf &target) {
             assert(output.size() == target.size());
 
             // -( y*ln(a) + (1-y)*ln(1-a) )
-            float loss = -1.0 * ( target.array() * log(output.array()) +
-                    (1.0 - target.array()) * log(1.0 - output.array()) ).matrix().sum();
-
+            // In particular, if both ``a`` and ``y`` have a 1.0 in the same slot,
+            // then the expression (1-y)*np.log(1-a) returns nan.
+            // The nan_to_num ensures that that is converted to the correct value (0.0).
+            VectorXf tmp = ( target.array() * log(output.array()) +
+                             (1.0 - target.array()) * log(1.0 - output.array()) ).matrix();
+            float loss = -1.0 * tmp.unaryExpr(ptr_fun(nan_to_num)).sum();
+            //cout << "output:" << output << endl;
+            //cout << "target:" << target << endl;
+            //cout << "loss:" << loss << endl;
             return loss;
         }
 
@@ -88,7 +104,10 @@ namespace lu_net {
             assert(output.size() == target.size());
 
             // (a-y)/(a*(1-a))
-            return ((output.array() - target.array()) / (output.array() * (1.0 - output.array()))).matrix();
+            // delta of cross-entropy is (a-y), because denominator (a*(1-a)) is
+            // removed by multiply sigmoid_prime.
+            return ((output.array() - target.array())
+                    / (output.array() * (1.0 - output.array()))).matrix().unaryExpr(ptr_fun(nan_to_num));
         }
     };
 

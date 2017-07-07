@@ -21,13 +21,25 @@ namespace lu_net{
 
     VectorXf sigmoid_prime(const VectorXf &z);
 
-    //Objective function
-    float calcLoss(const VectorXf &output, const VectorXf &target);
-
+    // Finding the index of max value in vector
     template <typename T>
     int max_index(const vector<T> &vec) {
         auto begin_iterator = begin(vec);
         return max_element(begin_iterator, end(vec)) - begin_iterator;
+    }
+
+    // Checking for finite within vectors/matrices
+    template<typename Derived>
+    inline bool has_finite(const Eigen::MatrixBase<Derived>& x)
+    {
+        return ( (x - x).array() == (x - x).array()).all();
+    }
+
+    // Checking for NaNs within vectors/matrices
+    template<typename Derived>
+    inline bool has_nan(const Eigen::MatrixBase<Derived>& x)
+    {
+        return ((x.array() == x.array())).all();
     }
 }
 
