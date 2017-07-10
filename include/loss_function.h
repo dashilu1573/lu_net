@@ -74,8 +74,7 @@ namespace lu_net {
     class cross_entropy {
     public:
         // define function to be applied coefficient-wise
-        static float_t nan_to_num(float_t x)
-        {
+        static float_t nan_to_num(float_t x) {
             if (std::isfinite(x))
                 return x;
             else

@@ -19,7 +19,11 @@ namespace lu_net{
     //relu function
     VectorXf relu(const VectorXf &x);
 
+    //Derivative of the sigmoid function.
     VectorXf sigmoid_prime(const VectorXf &z);
+
+    //generate guassian random value
+    float_t gaussian_random(float_t x);
 
     // Finding the index of max value in vector
     template <typename T>

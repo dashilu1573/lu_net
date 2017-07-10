@@ -3,6 +3,7 @@
 //
 #include "function.h"
 #include <eigen3/Eigen/Dense>
+#include "random.h"
 
 using namespace std;
 using namespace Eigen;
@@ -23,6 +24,10 @@ namespace lu_net {
     //Derivative of the sigmoid function.
     VectorXf sigmoid_prime(const VectorXf &z) {
         return sigmoid(z).array() * (1 - sigmoid(z).array());
+    }
+
+    float_t gaussian_random(float_t x) {
+        return gaussian_rand(0.0, 1.0);
     }
 }
 

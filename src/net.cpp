@@ -9,9 +9,9 @@
 #include <fstream>
 #include "function.h"
 #include "io.h"
-#include "../proto/lu.pb.h"
 #include "Matrix.h"
 #include "loss_function.h"
+#include "random.h"
 
 using namespace std;
 using namespace Eigen;
@@ -33,7 +33,7 @@ namespace lu_net {
         for (int i = 0; i < num_layers; i++) {
             layers[i] = VectorXf::Zero(layers_neuron_num[i]);
         }
-        std::cout << "Genarate layers, sucessfully!" << std::endl;
+        cout << "Genarate layers, sucessfully!" << endl;
 
         //Generate every weights matrix and bias，index 0 is unused, use num_layers size for uniform index
         weights.resize(num_layers);
@@ -45,17 +45,26 @@ namespace lu_net {
         cout << "initialize Net, done!" << endl;
     }
 
-    // initialize weights matrices
+
+    /**
+     * Initialize each weight using a Gaussian distribution with mean 0 and standard deviation 1 over the square root
+     * of the number of weights connecting to the same neuron.  Initialize the biases using a Gaussian distribution with
+     * mean 0 and standard deviation 1.
+     **/
     void Net::initWeights(double w) {
         for (int i = 1; i < num_layers; i++) {
-            weights[i] = MatrixXf::Random(layers[i].rows(), layers[i - 1].rows());
+            weights[i] = MatrixXf::Zero(layers[i].rows(), layers[i - 1].rows())
+                    .unaryExpr(ptr_fun(gaussian_random)) / sqrt(float(layers[i - 1].rows()));
         }
     }
 
-    // initialize bias vectors
+
+    /**
+     * Initialize each weight using a Gaussian distribution with mean 0 and standard deviation 1
+     * */
     void Net::initBias(double w) {
         for (int i = 1; i < num_layers; i++) {
-            bias[i] = VectorXf::Zero(layers[i].rows());
+            bias[i] = VectorXf::Zero(layers[i].rows()).unaryExpr(ptr_fun(gaussian_random));
         }
     }
 
@@ -71,7 +80,8 @@ namespace lu_net {
         }
     }
 
-    /*compute the partial derivatives for the output activations.
+    /**
+     * Compute the partial derivatives for the output activations.
      * */
     VectorXf Net::cost_derivative(VectorXf output_activations, VectorXf y) {
         return (output_activations - y);
@@ -79,7 +89,7 @@ namespace lu_net {
 
 
     /**
-     * compute the w and b gradient of the cost function C_x
+     * Compute the w and b gradient of the cost function C_x
      * */
     template <typename E>
     void Net::backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b) {
