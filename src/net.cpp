@@ -18,11 +18,12 @@ using namespace Eigen;
 
 namespace lu_net {
 
-    void Net::initNet(std::vector<int> layers_neuron_num) {
+    void Net::initNet(std::vector<int> layers_neuron_num, float learning_rate, float lmbda) {
         this->layers_neuron_num = layers_neuron_num;
         num_layers = layers_neuron_num.size();
-        learning_rate = 0.5;
+        this->learning_rate = learning_rate;
         fine_tune_factor = 1;    //设置学习率变化因子
+        this->lmbda = lmbda;
         output_interval = 1;  //设置训练loss输出间隔,epoch为单位
 
         // resize(int n,element)表示调整容器v的大小为n，调整后的每个元素的值为element，默认为0，
@@ -112,7 +113,7 @@ namespace lu_net {
      * The mini_batch is a list of tuples (x, y), and lr is the learning rate.
      * */
     template <typename E>
-    void Net::update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size) {
+    void Net::update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size, int n) {
         //累加到一起的改变
         vector<MatrixXf> acum_nabla_w;
         acum_nabla_w.resize(num_layers);
@@ -163,14 +164,23 @@ namespace lu_net {
             }
         }
 
-        //一批样本改变的平均值作为最后的改变
+        // 一批样本改变的平均值作为最后的改变
         for (int k = 1; k < num_layers; ++k) {
-            weights[k] = weights[k] - learning_rate / batch_size * acum_nabla_w[k];
+            weights[k] = ( 1 - learning_rate * (lmbda / n) ) * weights[k] - learning_rate / batch_size * acum_nabla_w[k];
             bias[k] = bias[k] - learning_rate / batch_size * acum_nabla_b[k];
         }
 
-        //求loss平均值
+        // 求loss平均值
         batch_loss = batch_sum_loss / batch_size;
+
+        // add regularization term
+        float sum_squares_weights = 0;
+        for (int k = 1; k < num_layers; k++)
+        {
+            sum_squares_weights = weights[k].array().square().matrix().sum();
+        }
+
+        batch_loss += 0.5 * (lmbda / batch_size);
     }
 
 
@@ -181,11 +191,11 @@ namespace lu_net {
     *
     * @param batch_size the number of data points to use in this batch
     */
-    void Net::train_onebatch(const tensor_t* in, const tensor_t* t, int batch_size) {
+    void Net::train_onebatch(const tensor_t* in, const tensor_t* t, int batch_size, int n) {
         vector<tensor_t> in_batch(&in[0], &in[0] + batch_size);
         vector<tensor_t> t_batch(&t[0], &t[0] + batch_size);
 
-        update_batch<cross_entropy>(in_batch, t_batch, batch_size);
+        update_batch<cross_entropy>(in_batch, t_batch, batch_size, n);
     }
 
 
@@ -196,11 +206,12 @@ namespace lu_net {
     */
     void Net::train_once(const tensor_t *in,
                     const tensor_t *t,
-                    int size) {
+                    int size,
+                    int n) {
         if (size == 1) {
 
         } else {
-            train_onebatch(in, t, size);
+            train_onebatch(in, t, size, n);
         }
     }
 
@@ -225,6 +236,9 @@ namespace lu_net {
             return false;
         }
 
+        // size of training set.
+        int n = inputs.size();
+
         //转化成tensor_t类型
         std::vector<tensor_t> input_tensor, output_tensor, t_cost_tensor;
         normalize_tensor(inputs, input_tensor);
@@ -237,8 +251,10 @@ namespace lu_net {
 
             for (int i = 0; i < inputs.size(); i += batch_size) {
                 // train on one minibatch
-                train_once(&input_tensor[i], &output_tensor[i],
-                                  static_cast<int>(min<int>(batch_size, inputs.size() - i)));
+                train_once(&input_tensor[i],
+                           &output_tensor[i],
+                           static_cast<int>(min<int>(batch_size, inputs.size() - i)),
+                           n);
             }
 
             cout << "last batch_loss:" << batch_loss << endl;

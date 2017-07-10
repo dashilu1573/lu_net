@@ -92,9 +92,7 @@ namespace lu_net {
             VectorXf tmp = ( target.array() * log(output.array()) +
                              (1.0 - target.array()) * log(1.0 - output.array()) ).matrix();
             float loss = -1.0 * tmp.unaryExpr(ptr_fun(nan_to_num)).sum();
-            //cout << "output:" << output << endl;
-            //cout << "target:" << target << endl;
-            //cout << "loss:" << loss << endl;
+
             return loss;
         }
 

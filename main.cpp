@@ -8,10 +8,10 @@ using namespace cv;
 using namespace lu_net;
 
 int main(int argc, char** argv) {
-    vector<int> layers_neuron_num = {784, 30, 10};
+    vector<int> layers_neuron_num = {784, 100, 10};
 
     Net net;
-    net.initNet(layers_neuron_num);
+    net.initNet(layers_neuron_num, 0.5, 5.0);
     net.initWeights(0);
     net.initBias(0);
 

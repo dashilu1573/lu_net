@@ -52,13 +52,14 @@ namespace lu_net {
         vector<int> layers_neuron_num;
         int num_layers = 0;
         float learning_rate = 0.0;
-        float batch_loss = 0.0; //一批样本的loss
-        int output_interval = 0;    //训练中间输出loss
-        float fine_tune_factor = 0.0; //学习率调节因子
+        float lmbda = 0.0;              // regularization parameter.
+        float batch_loss = 0.0;         // loss of a batch of data.
+        int output_interval = 0;        // interval loss in trainning.
+        float fine_tune_factor = 0.0;   // finetune factor of learning rate.
 
         // initialize net:generate weights matrices、layer matrices and bias matrices
         // bias default all zero
-        void initNet(const vector<int> layers_neuron_num);
+        void initNet(const vector<int> layers_neuron_num, float learning_rate, float lmbda);
 
         // initialize the weights matrices
         void initWeights(const double w = 0);
@@ -103,7 +104,8 @@ namespace lu_net {
         */
         void train_once(const tensor_t *in,
                         const tensor_t *t,
-                        int size);
+                        int size,
+                        int n);
 
         /**
         * trains on one minibatch, i.e. runs forward and backward propagation to calculate
@@ -114,10 +116,11 @@ namespace lu_net {
         */
         void train_onebatch(const tensor_t *in,
                             const tensor_t *t,
-                            int batch_size);
+                            int batch_size,
+                            int n);
 
         template <typename E>
-        void update_batch(const vector<tensor_t> &in, const vector<tensor_t> &t, int batch_size);
+        void update_batch(const vector<tensor_t> &in, const vector<tensor_t> &t, int batch_size, int n);
 
         //Backward
         void farward(VectorXf x);
