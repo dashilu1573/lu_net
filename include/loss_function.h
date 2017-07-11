@@ -1,5 +1,5 @@
 //
-// Created by 芦yafei  on 17/7/5.
+// Created by 芦yafei  on 14/7/5.
 //
 
 #ifndef LU_NET_LOSS_FUNCTION_H

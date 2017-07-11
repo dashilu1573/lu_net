@@ -1,7 +1,9 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <loss_function.h>
 #include "include/net.h"
 #include "include/mnist_parser.h"
+#include "loss_function.h"
 
 using namespace std;
 using namespace cv;
@@ -37,7 +39,7 @@ int main(int argc, char** argv) {
     cout << "start learning" << endl;
     int minibatch_size = 10;
     int num_epochs = 30;
-    net.train(train_images, train_labels, minibatch_size, num_epochs);
+    net.train<cross_entropy>(train_images, train_labels, minibatch_size, num_epochs);
     cout << "End training." << endl;
 
     cout << "Start test." << endl;

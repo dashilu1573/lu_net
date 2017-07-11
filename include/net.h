@@ -1,5 +1,5 @@
 //
-// Created by 芦yafei  on 17/6/9.
+// Created by 芦yafei  on 14/6/9.
 //
 
 #ifndef LU_NET_NET_H
@@ -52,9 +52,9 @@ namespace lu_net {
         vector<int> layers_neuron_num;
         int num_layers = 0;
         float learning_rate = 0.0;
-        float lmbda = 0.0;              // regularization parameter.
+        float lmbda = 0.0;              // regularization parameter, vary with the trainnig data size.
         float batch_loss = 0.0;         // loss of a batch of data.
-        int output_interval = 0;        // interval loss in trainning.
+        int output_interval = 0;        // 设置训练loss输出间隔,epoch为单位
         float fine_tune_factor = 0.0;   // finetune factor of learning rate.
 
         // initialize net:generate weights matrices、layer matrices and bias matrices
@@ -82,6 +82,7 @@ namespace lu_net {
          * @param batch_size         number of samples per parameter update
          * @param epoch              number of training epochs
          */
+        template <typename E>
         bool train(const vector<vec_t> &inputs, const vector<label_t> &class_labels, int batch_size, int epoch);
 
         result test(const std::vector<vec_t> &inputs, const std::vector<label_t> &class_labels);
@@ -98,10 +99,11 @@ namespace lu_net {
         vector<VectorXf> zs;    //store all the z vectors(weighted input), layer by layer
 
         /**
-        * train on one minibatch
-        *
+        * train on one minibatch.
+         *
         * @param size is the number of data points to use in this batch
         */
+        template <typename E>
         void train_once(const tensor_t *in,
                         const tensor_t *t,
                         int size,
@@ -114,6 +116,7 @@ namespace lu_net {
         *
         * @param batch_size the number of data points to use in this batch
         */
+        template <typename E>
         void train_onebatch(const tensor_t *in,
                             const tensor_t *t,
                             int batch_size,

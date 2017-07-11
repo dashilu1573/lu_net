@@ -24,7 +24,7 @@ namespace lu_net {
     using google::protobuf::Message;
 
 /**
- * label转成向量形式
+ * convert label tag to vector
  **/
     void label2vec(const label_t *t,
                    int num,

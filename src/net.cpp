@@ -1,5 +1,5 @@
 //
-// Created by 芦yafei  on 17/6/9.
+// Created by 芦yafei  on 14/6/9.
 //
 
 #include <iostream>
@@ -22,7 +22,7 @@ namespace lu_net {
         this->layers_neuron_num = layers_neuron_num;
         num_layers = layers_neuron_num.size();
         this->learning_rate = learning_rate;
-        fine_tune_factor = 1;    //设置学习率变化因子
+        fine_tune_factor = 1;    // finetune factor of learning rate.
         this->lmbda = lmbda;
         output_interval = 1;  //设置训练loss输出间隔,epoch为单位
 
@@ -61,7 +61,7 @@ namespace lu_net {
 
 
     /**
-     * Initialize each weight using a Gaussian distribution with mean 0 and standard deviation 1
+     * Initialize each weight using a Gaussian distribution with mean 0 and standard deviation 1.
      * */
     void Net::initBias(double w) {
         for (int i = 1; i < num_layers; i++) {
@@ -69,7 +69,7 @@ namespace lu_net {
         }
     }
 
-    //farward
+    // farward
     void Net::farward(VectorXf x) {
         layers[0] = x;
 
@@ -94,8 +94,8 @@ namespace lu_net {
      * */
     template <typename E>
     void Net::backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b) {
-        //最后一层的error
-        //VectorXf delta = cost_derivative(layers[num_layers - 1], y).array() * sigmoid_prime(zs[num_layers -1]).array();
+        // error of last layer
+        // VectorXf delta = cost_derivative(layers[num_layers - 1], y).array() * sigmoid_prime(zs[num_layers -1]).array();
         VectorXf delta = E::df(layers[num_layers - 1], y).array() * sigmoid_prime(zs[num_layers -1]).array();
         nabla_b[num_layers - 1] = delta;
         nabla_w[num_layers - 1] = delta * layers[num_layers -2].transpose();
@@ -111,6 +111,7 @@ namespace lu_net {
     /**
      * Update the network's weights and biases by applying gradient descent using backpropagation to a single mini batch.
      * The mini_batch is a list of tuples (x, y), and lr is the learning rate.
+     * @n is the total size of the training data set.
      * */
     template <typename E>
     void Net::update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size, int n) {
@@ -166,7 +167,8 @@ namespace lu_net {
 
         // 一批样本改变的平均值作为最后的改变
         for (int k = 1; k < num_layers; ++k) {
-            weights[k] = ( 1 - learning_rate * (lmbda / n) ) * weights[k] - learning_rate / batch_size * acum_nabla_w[k];
+            weights[k] = weights[k] - learning_rate / batch_size * acum_nabla_w[k];
+            // weights[k] = ( 1 - learning_rate * (lmbda / n) ) * weights[k] - learning_rate / batch_size * acum_nabla_w[k];
             bias[k] = bias[k] - learning_rate / batch_size * acum_nabla_b[k];
         }
 
@@ -177,10 +179,9 @@ namespace lu_net {
         float sum_squares_weights = 0;
         for (int k = 1; k < num_layers; k++)
         {
-            sum_squares_weights = weights[k].array().square().matrix().sum();
+            sum_squares_weights += weights[k].array().square().matrix().sum();
         }
-
-        batch_loss += 0.5 * (lmbda / batch_size);
+        // batch_loss += 0.5 * (lmbda / batch_size) * sum_squares_weights;
     }
 
 
@@ -191,11 +192,12 @@ namespace lu_net {
     *
     * @param batch_size the number of data points to use in this batch
     */
+    template <typename E>
     void Net::train_onebatch(const tensor_t* in, const tensor_t* t, int batch_size, int n) {
         vector<tensor_t> in_batch(&in[0], &in[0] + batch_size);
         vector<tensor_t> t_batch(&t[0], &t[0] + batch_size);
 
-        update_batch<cross_entropy>(in_batch, t_batch, batch_size, n);
+        update_batch<E>(in_batch, t_batch, batch_size, n);
     }
 
 
@@ -204,6 +206,7 @@ namespace lu_net {
     *
     * @param size is the number of data points to use in this batch
     */
+    template <typename E>
     void Net::train_once(const tensor_t *in,
                     const tensor_t *t,
                     int size,
@@ -211,7 +214,7 @@ namespace lu_net {
         if (size == 1) {
 
         } else {
-            train_onebatch(in, t, size, n);
+            train_onebatch<E>(in, t, size, n);
         }
     }
 
@@ -228,6 +231,7 @@ namespace lu_net {
      * @param batch_size         number of samples per parameter update
      * @param epoch              number of training epochs
      */
+    template <typename E>
     bool Net::train(const vector<vec_t> &inputs, const vector<label_t> &class_labels, int batch_size, int epoch) {
         if (inputs.size() != class_labels.size()) {
             return false;
@@ -240,7 +244,7 @@ namespace lu_net {
         int n = inputs.size();
 
         //转化成tensor_t类型
-        std::vector<tensor_t> input_tensor, output_tensor, t_cost_tensor;
+        vector<tensor_t> input_tensor, output_tensor, t_cost_tensor;
         normalize_tensor(inputs, input_tensor);
         normalize_tensor(class_labels, output_tensor);
 
@@ -251,7 +255,7 @@ namespace lu_net {
 
             for (int i = 0; i < inputs.size(); i += batch_size) {
                 // train on one minibatch
-                train_once(&input_tensor[i],
+                train_once<E>(&input_tensor[i],
                            &output_tensor[i],
                            static_cast<int>(min<int>(batch_size, inputs.size() - i)),
                            n);
@@ -270,6 +274,10 @@ namespace lu_net {
 
         return true;
     }
+
+    // instance for template function
+    template bool Net::train<cross_entropy>(const vector<vec_t> &inputs, const vector<label_t> &class_labels, int batch_size,
+                                       int epoch);
 
 
     /**
