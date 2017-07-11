@@ -4,12 +4,17 @@
 #include "include/net.h"
 #include "include/mnist_parser.h"
 #include "loss_function.h"
+#include <gflags/gflags.h>
 
 using namespace std;
 using namespace cv;
 using namespace lu_net;
 
+DEFINE_string(data_dir, "/Users/luyafei/GitHub/lu_net/data", "Data directory");
+
 int main(int argc, char** argv) {
+    gflags::ParseCommandLineFlags(&argc, &argv, true);
+
     vector<int> layers_neuron_num = {784, 100, 10};
 
     Net net;
@@ -18,7 +23,7 @@ int main(int argc, char** argv) {
     net.initBias(0);
 
     // load MNIST dataset
-    string data_dir = "/Users/luyafei/GitHub/lu_net/data";
+    string data_dir = FLAGS_data_dir;
     vector<label_t> train_labels, test_labels;
     vector<vec_t> train_images, test_images;
 
@@ -47,5 +52,7 @@ int main(int argc, char** argv) {
     cout << "Test accuracy:" << test_result.accuracy() << endl;
 
     net.save("lu_net.model", content_type::weights_and_model, file_format::binary);
+
+    gflags::ShutDownCommandLineFlags();
     return 0;
 }

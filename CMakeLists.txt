@@ -10,8 +10,8 @@ include_directories(include)
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
-set(SOURCE_FILES main.cpp src/net.cpp src/function.cpp proto/lu.pb.cc)
+set(SOURCE_FILES main.cpp src/net.cpp src/function.cpp src/io.cpp proto/lu.pb.cc)
 
 add_executable(lu_net ${SOURCE_FILES})
 
-target_link_libraries(lu_net ${PROTOBUF_LIBRARIES})
+target_link_libraries(lu_net ${PROTOBUF_LIBRARIES} gflags)
