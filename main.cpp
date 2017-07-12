@@ -5,6 +5,7 @@
 #include "include/mnist_parser.h"
 #include "loss_function.h"
 #include <gflags/gflags.h>
+#include <glog/logging.h>
 
 using namespace std;
 using namespace cv;
@@ -14,6 +15,8 @@ DEFINE_string(data_dir, "/Users/luyafei/GitHub/lu_net/data", "Data directory");
 
 int main(int argc, char** argv) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
+    google::InitGoogleLogging(argv[0]);
+    FLAGS_log_dir = ".";   //设置log目录
 
     vector<int> layers_neuron_num = {784, 100, 10};
 
@@ -37,19 +40,19 @@ int main(int argc, char** argv) {
     read_Mnist_Label(test_labels_path, test_labels);
     read_Mnist_Images(test_images_path, test_images);
 
-    cout << "Initial test." << endl;
+    LOG(INFO) << "Initial test.";
     result initial_test = net.test(test_images, test_labels);
     cout << "Initial test accuracy:" << initial_test.accuracy() << endl;
 
-    cout << "start learning" << endl;
+    LOG(INFO) << "start learning";
     int minibatch_size = 10;
     int num_epochs = 30;
     net.train<cross_entropy>(train_images, train_labels, minibatch_size, num_epochs);
-    cout << "End training." << endl;
+    LOG(INFO) << "End training.";
 
-    cout << "Start test." << endl;
+    LOG(INFO) << "Start test.";
     result test_result = net.test(test_images, test_labels);
-    cout << "Test accuracy:" << test_result.accuracy() << endl;
+    LOG(INFO) << "Test accuracy:" << test_result.accuracy();
 
     net.save("lu_net.model", content_type::weights_and_model, file_format::binary);
 
