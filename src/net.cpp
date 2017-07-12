@@ -12,6 +12,7 @@
 #include "Matrix.h"
 #include "loss_function.h"
 #include "random.h"
+#include <glog/logging.h>
 
 using namespace std;
 using namespace Eigen;
@@ -34,7 +35,7 @@ namespace lu_net {
         for (int i = 0; i < num_layers; i++) {
             layers[i] = VectorXf::Zero(layers_neuron_num[i]);
         }
-        cout << "Genarate layers, sucessfully!" << endl;
+        LOG(INFO) << "Genarate layers, sucessfully!";
 
         //Generate every weights matrix and bias，index 0 is unused, use num_layers size for uniform index
         weights.resize(num_layers);
@@ -42,8 +43,8 @@ namespace lu_net {
         gradient.resize(num_layers);
         zs.resize(num_layers);
 
-        cout << "Generate weights matrices and bias successfuly!" << endl;
-        cout << "initialize Net, done!" << endl;
+        LOG(INFO) << "Generate weights matrices and bias successfuly!";
+        LOG(INFO) << "initialize Net, done!";
     }
 
 
@@ -250,8 +251,8 @@ namespace lu_net {
 
         //整个样本集训练epoch次
         for (int iter = 0; iter < epoch; iter++) {
-            cout << "epoch:" << iter << endl;
-            cout << "learning rate:" << learning_rate << endl;
+            LOG(INFO) << "epoch:" << iter;
+            LOG(INFO) << "learning rate:" << learning_rate;
 
             for (int i = 0; i < inputs.size(); i += batch_size) {
                 // train on one minibatch
@@ -261,7 +262,7 @@ namespace lu_net {
                            n);
             }
 
-            cout << "last batch_loss:" << batch_loss << endl;
+            LOG(INFO) << "last batch_loss:" << batch_loss;
 
             //change learning rate
             if (iter % output_interval == 0)
@@ -270,7 +271,7 @@ namespace lu_net {
             }
         }
 
-        cout << "End training." << endl;
+        LOG(INFO) << "End training.";
 
         return true;
     }

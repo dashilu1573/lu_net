@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "net.h"
+#include <glog/logging.h>
 
 using namespace std;
 using namespace lu_net;
@@ -55,7 +56,7 @@ void read_Mnist_Images(string filename, vector<vec_t> &images) {
         n_cols = ReverseInt(n_cols);
 
         //cout << "magic number = " << magic_number << endl;
-        cout << "number of images = " << number_of_images << endl;
+        LOG(INFO) << "number of images = " << number_of_images;
         //cout << "rows = " << n_rows << endl;
         //cout << "cols = " << n_cols << endl;
 

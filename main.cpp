@@ -15,6 +15,9 @@ DEFINE_string(data_dir, "/Users/luyafei/GitHub/lu_net/data", "Data directory");
 
 int main(int argc, char** argv) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
+
+    // Print output to stderr (while still logging).
+    FLAGS_alsologtostderr = 1;
     google::InitGoogleLogging(argv[0]);
     FLAGS_log_dir = ".";   //设置log目录
 
@@ -42,7 +45,7 @@ int main(int argc, char** argv) {
 
     LOG(INFO) << "Initial test.";
     result initial_test = net.test(test_images, test_labels);
-    cout << "Initial test accuracy:" << initial_test.accuracy() << endl;
+    LOG(INFO) << "Initial test accuracy:" << initial_test.accuracy();
 
     LOG(INFO) << "start learning";
     int minibatch_size = 10;
