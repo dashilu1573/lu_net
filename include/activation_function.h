@@ -18,30 +18,32 @@ namespace lu_net{
 
             // dfi/dyi
             virtual float_t df(float_t y) const = 0;
-
-            // dfi/dyk (k=0,1,..n)
-            virtual vec_t df(const vec_t& y, cnn_size_t i) const { vec_t v(y.size(), 0); v[i] = df(y[i]); return v; }
-
-            // return if dfi/dyk is one-hot vector
-            virtual bool one_hot() const { return true; }
-
-            // target value range for learning
-            virtual std::pair<float_t, float_t> scale() const = 0;
         };
+
 
         class sigmoid : public function {
         public:
             using function::df;
-            float_t f(const vec_t& v, cnn_size_t i) const override { return float_t(1) / (float_t(1) + std::exp(-v[i])); }
-            float_t df(float_t y) const override { return y * (float_t(1) - y); }
+            float_t f(const vec_t& v, cnn_size_t i) const override {
+                return float_t(1) / (float_t(1) + std::exp(-v[i]));
+            }
+            float_t df(float_t y) const override {
+                return y * (float_t(1) - y);
+            }
         };
+
 
         class relu : public function {
         public:
             using function::df;
-            float_t f(const vec_t& v, cnn_size_t i) const override { return std::max(float_t(0), v[i]); }
-            float_t df(float_t y) const override { return y > float_t(0) ? float_t(1) : float_t(0); }
-            };
+            float_t f(const vec_t& v, cnn_size_t i) const override {
+                return std::max(float_t(0), v[i]);
+            }
+            float_t df(float_t y) const override {
+                return y > float_t(0) ? float_t(1) : float_t(0);
+            }
+        };
+
 
         class softmax : public function {
         public:
@@ -67,6 +69,7 @@ namespace lu_net{
             }
         };
 
+
         class tan_h : public function {
         public:
             using function::df;
@@ -78,7 +81,6 @@ namespace lu_net{
 
             float_t df(float_t y) const override { return float_t(1) - sqr(y); }
         };
-
     }
 }
 
