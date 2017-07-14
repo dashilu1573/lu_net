@@ -13,14 +13,6 @@ using namespace std;
 using namespace Eigen;
 
 namespace lu_net{
-    //sigmoid function
-    VectorXf sigmoid(const VectorXf &x);
-
-    //relu function
-    VectorXf relu(const VectorXf &x);
-
-    //Derivative of the sigmoid function.
-    VectorXf sigmoid_prime(const VectorXf &z);
 
     //generate guassian random value
     float_t gaussian_random(float_t x);
