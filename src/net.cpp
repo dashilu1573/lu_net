@@ -13,6 +13,7 @@
 #include "loss_function.h"
 #include "random.h"
 #include <glog/logging.h>
+#include "activation_function.h"
 
 using namespace std;
 using namespace Eigen;
@@ -78,15 +79,8 @@ namespace lu_net {
             //weighted input
             VectorXf z = weights[i] * layers[i - 1] + bias[i];
             zs[i] = z;
-            layers[i] = sigmoid(z);
+            layers[i] = activation::sigmoid::f(z);
         }
-    }
-
-    /**
-     * Compute the partial derivatives for the output activations.
-     * */
-    VectorXf Net::cost_derivative(VectorXf output_activations, VectorXf y) {
-        return (output_activations - y);
     }
 
 

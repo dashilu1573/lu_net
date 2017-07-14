@@ -128,8 +128,6 @@ namespace lu_net {
         //Backward
         void farward(VectorXf x);
 
-        VectorXf cost_derivative(VectorXf output_activations, VectorXf y);
-
         //Forward
         template <typename E>
         void backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b);
