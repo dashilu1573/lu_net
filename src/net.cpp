@@ -91,12 +91,12 @@ namespace lu_net {
     void Net::backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b) {
         // error of last layer
         // VectorXf delta = cost_derivative(layers[num_layers - 1], y).array() * sigmoid_prime(zs[num_layers -1]).array();
-        VectorXf delta = E::df(layers[num_layers - 1], y).array() * sigmoid_prime(zs[num_layers -1]).array();
+        VectorXf delta = E::df(layers[num_layers - 1], y).array() * activation::sigmoid::df(zs[num_layers -1]).array();
         nabla_b[num_layers - 1] = delta;
         nabla_w[num_layers - 1] = delta * layers[num_layers -2].transpose();
 
         for (int i = num_layers - 2; i >= 1; i--) {
-            delta = (weights[i + 1].transpose() * delta).array() * sigmoid_prime(zs[i]).array();
+            delta = (weights[i + 1].transpose() * delta).array() * activation::sigmoid::df(zs[i]).array();
             nabla_b[i] = delta;
             nabla_w[i] = delta * layers[i - 1].transpose();
         }
