@@ -23,7 +23,7 @@ namespace lu_net {
     // gradient
     VectorXf mse::df(const VectorXf &output, const VectorXf &target) {
         assert(output.size() == target.size());
-        //float_t factor = 2.0 / static_cast<float_t>(target.size()); ????不知为何要
+        //float_t factor = 2.0 / static_cast<float_t>(target.size()); ?????????
         //return factor * (output - target);
         return output - target;
     }

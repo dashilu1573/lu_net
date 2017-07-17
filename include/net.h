@@ -82,8 +82,8 @@ namespace lu_net {
          * @param batch_size         number of samples per parameter update
          * @param epoch              number of training epochs
          */
-        template <typename E>
-        bool train(const vector<vec_t> &inputs, const vector<label_t> &class_labels, int batch_size, int epoch);
+        template <typename E, typename Optimizer>
+        bool train(Optimizer &optimizer, const vector<vec_t> &inputs, const vector<label_t> &class_labels, int batch_size, int epoch);
 
         result test(const std::vector<vec_t> &inputs, const std::vector<label_t> &class_labels);
 
@@ -103,8 +103,9 @@ namespace lu_net {
          *
         * @param size is the number of data points to use in this batch
         */
-        template <typename E>
-        void train_once(const tensor_t *in,
+        template <typename E, typename Optimizer>
+        void train_once(Optimizer &optimizer,
+                        const tensor_t *in,
                         const tensor_t *t,
                         int size,
                         int n);
@@ -116,14 +117,19 @@ namespace lu_net {
         *
         * @param batch_size the number of data points to use in this batch
         */
-        template <typename E>
-        void train_onebatch(const tensor_t *in,
+        template <typename E, typename Optimizer>
+        void train_onebatch(Optimizer &optimizer,
+                            const tensor_t *in,
                             const tensor_t *t,
                             int batch_size,
                             int n);
 
-        template <typename E>
-        void update_batch(const vector<tensor_t> &in, const vector<tensor_t> &t, int batch_size, int n);
+        template <typename E, typename Optimizer>
+        void update_batch(Optimizer &optimizer,
+                          const vector<tensor_t> &in,
+                          const vector<tensor_t> &t,
+                          int batch_size,
+                          int n);
 
         //Backward
         void farward(VectorXf x);

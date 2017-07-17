@@ -1,11 +1,13 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <loss_function.h>
-#include "include/net.h"
-#include "include/mnist_parser.h"
+#include "net.h"
+#include "mnist_parser.h"
 #include "loss_function.h"
 #include <gflags/gflags.h>
 #include <glog/logging.h>
+#include <vector>
+#include "optimizer.h"
 
 using namespace std;
 using namespace cv;
@@ -44,13 +46,16 @@ int main(int argc, char** argv) {
     read_Mnist_Images(test_images_path, test_images);
 
     LOG(INFO) << "Initial test.";
+
     result initial_test = net.test(test_images, test_labels);
     LOG(INFO) << "Initial test accuracy:" << initial_test.accuracy();
 
     LOG(INFO) << "start learning";
     int minibatch_size = 10;
     int num_epochs = 30;
-    net.train<cross_entropy>(train_images, train_labels, minibatch_size, num_epochs);
+    optimizer::gradient_descent op;
+
+    net.train<cross_entropy>(op, train_images, train_labels, minibatch_size, num_epochs);
     LOG(INFO) << "End training.";
 
     LOG(INFO) << "Start test.";

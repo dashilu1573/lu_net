@@ -14,6 +14,7 @@
 #include "random.h"
 #include <glog/logging.h>
 #include "activation_function.h"
+#include "optimizer.h"
 
 using namespace std;
 using namespace Eigen;
@@ -108,8 +109,8 @@ namespace lu_net {
      * The mini_batch is a list of tuples (x, y), and lr is the learning rate.
      * @n is the total size of the training data set.
      * */
-    template <typename E>
-    void Net::update_batch(const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size, int n) {
+    template <typename E, typename Optimizer>
+    void Net::update_batch(Optimizer &optimizer, const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size, int n) {
         //累加到一起的改变
         vector<MatrixXf> acum_nabla_w;
         acum_nabla_w.resize(num_layers);
@@ -117,7 +118,7 @@ namespace lu_net {
         vector<VectorXf> acum_nabla_b;
         acum_nabla_b.resize(num_layers);
 
-        //初始化全零
+        //initial all zeros;
         for (int i = 1; i < num_layers; i++) {
             acum_nabla_w[i] = MatrixXf::Zero(layers[i].rows(), layers[i - 1].rows());
             acum_nabla_b[i] = VectorXf::Zero(layers[i].rows());
@@ -162,9 +163,12 @@ namespace lu_net {
 
         // 一批样本改变的平均值作为最后的改变
         for (int k = 1; k < num_layers; ++k) {
-            weights[k] = weights[k] - learning_rate / batch_size * acum_nabla_w[k];
-            // weights[k] = ( 1 - learning_rate * (lmbda / n) ) * weights[k] - learning_rate / batch_size * acum_nabla_w[k];
-            bias[k] = bias[k] - learning_rate / batch_size * acum_nabla_b[k];
+            // L2 Regular weights[k] = ( 1 - learning_rate * (lmbda / n) ) * weights[k] - learning_rate / batch_size * acum_nabla_w[k];
+            MatrixXf avg_nabla_w = acum_nabla_w[k] / batch_size;
+            optimizer.update_w(avg_nabla_w, weights[k], learning_rate);
+
+            VectorXf avg_nabla_b = acum_nabla_b[k] / batch_size;
+            optimizer.update_b(avg_nabla_b, bias[k], learning_rate);
         }
 
         // 求loss平均值
@@ -187,12 +191,12 @@ namespace lu_net {
     *
     * @param batch_size the number of data points to use in this batch
     */
-    template <typename E>
-    void Net::train_onebatch(const tensor_t* in, const tensor_t* t, int batch_size, int n) {
+    template <typename E, typename Optimizer>
+    void Net::train_onebatch(Optimizer &optimizer, const tensor_t* in, const tensor_t* t, int batch_size, int n) {
         vector<tensor_t> in_batch(&in[0], &in[0] + batch_size);
         vector<tensor_t> t_batch(&t[0], &t[0] + batch_size);
 
-        update_batch<E>(in_batch, t_batch, batch_size, n);
+        update_batch<E>(optimizer, in_batch, t_batch, batch_size, n);
     }
 
 
@@ -201,15 +205,15 @@ namespace lu_net {
     *
     * @param size is the number of data points to use in this batch
     */
-    template <typename E>
-    void Net::train_once(const tensor_t *in,
+    template <typename E, typename Optimizer>
+    void Net::train_once(Optimizer &optimizer, const tensor_t *in,
                     const tensor_t *t,
                     int size,
                     int n) {
         if (size == 1) {
 
         } else {
-            train_onebatch<E>(in, t, size, n);
+            train_onebatch<E>(optimizer, in, t, size, n);
         }
     }
 
@@ -226,8 +230,9 @@ namespace lu_net {
      * @param batch_size         number of samples per parameter update
      * @param epoch              number of training epochs
      */
-    template <typename E>
-    bool Net::train(const vector<vec_t> &inputs, const vector<label_t> &class_labels, int batch_size, int epoch) {
+    template <typename E, typename Optimizer>
+    bool Net::train(Optimizer &optimizer, const vector<vec_t> &inputs, const vector<label_t> &class_labels,
+                    int batch_size, int epoch) {
         if (inputs.size() != class_labels.size()) {
             return false;
         }
@@ -250,7 +255,7 @@ namespace lu_net {
 
             for (int i = 0; i < inputs.size(); i += batch_size) {
                 // train on one minibatch
-                train_once<E>(&input_tensor[i],
+                train_once<E>(optimizer, &input_tensor[i],
                            &output_tensor[i],
                            static_cast<int>(min<int>(batch_size, inputs.size() - i)),
                            n);
@@ -271,8 +276,8 @@ namespace lu_net {
     }
 
     // instance for template function
-    template bool Net::train<cross_entropy>(const vector<vec_t> &inputs, const vector<label_t> &class_labels, int batch_size,
-                                       int epoch);
+    template bool Net::train<cross_entropy>(optimizer::gradient_descent &optimizer, const vector<vec_t> &inputs, const vector<label_t> &class_labels, int batch_size,
+                                            int epoch);
 
 
     /**
