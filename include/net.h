@@ -10,10 +10,6 @@
 #include <eigen3/Eigen/Dense>
 #include <map>
 
-using namespace std;
-using namespace Eigen;
-
-
 namespace lu_net {
     typedef std::uint32_t label_t;
     typedef float float_t;
@@ -36,7 +32,7 @@ namespace lu_net {
 
         int num_success;
         int num_total;
-        map<label_t, map<label_t, int> > confusion_matrix;  //不用初始化？
+        std::map<label_t, std::map<label_t, int> > confusion_matrix;  //不用初始化？
 
         float accuracy() const {
             return float(num_success * 100.0 / num_total);
@@ -49,7 +45,7 @@ namespace lu_net {
 
         virtual ~Net() {};
 
-        vector<int> layers_neuron_num;
+        std::vector<int> layers_neuron_num;
         int num_layers = 0;
         float learning_rate = 0.0;
         float lmbda = 0.0;              // regularization parameter, vary with the trainnig data size.
@@ -59,7 +55,7 @@ namespace lu_net {
 
         // initialize net:generate weights matrices、layer matrices and bias matrices
         // bias default all zero
-        void initNet(const vector<int> layers_neuron_num, float learning_rate, float lmbda);
+        void initNet(const std::vector<int> layers_neuron_num, float learning_rate, float lmbda);
 
         // initialize the weights matrices
         void initWeights(const double w = 0);
@@ -83,20 +79,20 @@ namespace lu_net {
          * @param epoch              number of training epochs
          */
         template <typename E, typename Optimizer>
-        bool train(Optimizer &optimizer, const vector<vec_t> &inputs, const vector<label_t> &class_labels, int batch_size, int epoch);
+        bool train(Optimizer &optimizer, const std::vector<vec_t> &inputs, const std::vector<label_t> &class_labels, int batch_size, int epoch);
 
         result test(const std::vector<vec_t> &inputs, const std::vector<label_t> &class_labels);
 
-        bool save(const string &filename,
+        bool save(const std::string &filename,
                   content_type what = content_type::weights_and_model,
                   file_format format = file_format::binary);
 
     private:
-        vector<VectorXf> layers;
-        vector<MatrixXf> weights;
-        vector<VectorXf> bias;
-        vector<VectorXf> gradient;
-        vector<VectorXf> zs;    //store all the z vectors(weighted input), layer by layer
+        std::vector<Eigen::VectorXf> layers;
+        std::vector<Eigen::MatrixXf> weights;
+        std::vector<Eigen::VectorXf> bias;
+        std::vector<Eigen::VectorXf> gradient;
+        std::vector<Eigen::VectorXf> zs;    //store all the z vectors(weighted input), layer by layer
 
         /**
         * train on one minibatch.
@@ -126,19 +122,19 @@ namespace lu_net {
 
         template <typename E, typename Optimizer>
         void update_batch(Optimizer &optimizer,
-                          const vector<tensor_t> &in,
-                          const vector<tensor_t> &t,
+                          const std::vector<tensor_t> &in,
+                          const std::vector<tensor_t> &t,
                           int batch_size,
                           int n);
 
         //Backward
-        void farward(VectorXf x);
+        void farward(Eigen::VectorXf x);
 
         //Forward
         template <typename E>
-        void backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b);
+        void backward(const Eigen::VectorXf &y, std::vector<Eigen::MatrixXf> &nabla_w, std::vector<Eigen::VectorXf> &nabla_b);
 
-        label_t fprop_max_index(const VectorXf &in);
+        label_t fprop_max_index(const Eigen::VectorXf &in);
     };
 }
 #endif //LU_NET_NET_H

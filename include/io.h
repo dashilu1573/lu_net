@@ -26,22 +26,22 @@ namespace lu_net {
     /**
     * convert label tag to vector
     **/
-    void label2vec(const label_t *t, int num, vector<vec_t> &vec);
+    void label2vec(const label_t *t, int num, std::vector<vec_t> &vec);
 
 
-    void normalize_tensor(const vector<tensor_t> &inputs, vector<tensor_t> &normalized);
+    void normalize_tensor(const std::vector<tensor_t> &inputs, std::vector<tensor_t> &normalized);
 
 
     /**
      * convert vec_t to tensor_t
      **/
-    void normalize_tensor(const vector<vec_t> &inputs, vector<tensor_t> &normalized);
+    void normalize_tensor(const std::vector<vec_t> &inputs, std::vector<tensor_t> &normalized);
 
 
     /**
      * convert label_t to one hot tensor_t
      **/
-    void normalize_tensor(const vector<label_t> &inputs, vector<tensor_t> &normalized);
+    void normalize_tensor(const std::vector<label_t> &inputs, std::vector<tensor_t> &normalized);
 
 
     bool ReadProtoFromTextFile(const char *filename, Message *proto);

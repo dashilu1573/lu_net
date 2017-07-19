@@ -7,24 +7,21 @@
 
 #include <eigen3/Eigen/Dense>
 
-using namespace std;
-using namespace Eigen;
-
 namespace lu_net{
     namespace activation{
         class sigmoid {
         public:
-            static VectorXf f(const VectorXf &x);
+            static Eigen::VectorXf f(const Eigen::VectorXf &x);
 
-            static VectorXf df(const VectorXf &z);
+            static Eigen::VectorXf df(const Eigen::VectorXf &z);
         };
 
 
         class relu {
         public:
-            static VectorXf f(const VectorXf &x);
+            static Eigen::VectorXf f(const Eigen::VectorXf &x);
 
-            static VectorXf df(const VectorXf &z);
+            static Eigen::VectorXf df(const Eigen::VectorXf &z);
         };
     }
 }

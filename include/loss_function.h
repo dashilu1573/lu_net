@@ -15,10 +15,10 @@ namespace lu_net {
     class mse {
     public:
         // Return the cost associated with an output and desired output target
-        static float_t f(const VectorXf &output, const VectorXf &target);
+        static float_t f(const Eigen::VectorXf &output, const Eigen::VectorXf &target);
 
         // gradient
-        static VectorXf df(const VectorXf &output, const VectorXf &target);
+        static Eigen::VectorXf df(const Eigen::VectorXf &output, const Eigen::VectorXf &target);
     };
 
 
@@ -29,10 +29,10 @@ namespace lu_net {
         static float_t nan_to_num(float_t x);
 
         // Return the cost associated with an output and desired output target
-        static float_t f(const VectorXf &output, const VectorXf &target);
+        static float_t f(const Eigen::VectorXf &output, const Eigen::VectorXf &target);
 
         // gradient
-        static VectorXf df(const VectorXf &output, const VectorXf &target);
+        static Eigen::VectorXf df(const Eigen::VectorXf &output, const Eigen::VectorXf &target);
     };
 
 

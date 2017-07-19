@@ -7,6 +7,9 @@
 #include <eigen3/Eigen/Dense>
 #include "loss_function.h"
 
+using namespace std;
+using namespace Eigen;
+
 namespace lu_net {
     // Return the cost associated with an output and desired output target
     float_t mse::f(const VectorXf &output, const VectorXf &target) {
