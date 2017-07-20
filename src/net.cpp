@@ -171,10 +171,10 @@ namespace lu_net {
             optimizer.update_b(avg_nabla_b, bias[k], learning_rate);
         }
 
-        // 求loss平均值
+        // Average of loss.
         batch_loss = batch_sum_loss / batch_size;
 
-        // add regularization term
+        // Add regularization term.
         float sum_squares_weights = 0;
         for (int k = 1; k < num_layers; k++)
         {
@@ -240,15 +240,15 @@ namespace lu_net {
             return false;
         }
 
-        // size of training set.
+        // Size of training set.
         int n = inputs.size();
 
-        //转化成tensor_t类型
+        // Convert to tensor_t type.
         vector<tensor_t> input_tensor, output_tensor, t_cost_tensor;
         normalize_tensor(inputs, input_tensor);
         normalize_tensor(class_labels, output_tensor);
 
-        //整个样本集训练epoch次
+        // Train training set epoch times
         for (int iter = 0; iter < epoch; iter++) {
             LOG(INFO) << "epoch:" << iter;
             LOG(INFO) << "learning rate:" << learning_rate;

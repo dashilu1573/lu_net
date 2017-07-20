@@ -33,8 +33,8 @@ def transform_img(img, img_width=IMAGE_WIDTH, img_height=IMAGE_HEIGHT):
     return img
 
 
+# image is numpy.ndarray format. BGR instead of RGB
 def make_datum(img, label):
-    # image is numpy.ndarray format. BGR instead of RGB
     return Datum(
         channels=3,
         width=IMAGE_WIDTH,
@@ -72,6 +72,7 @@ with in_db.begin(write=True) as in_txn:
 
         datum = make_datum(img, label)
 
+        # key:line index, value:image data +label
         in_txn.put('{:0>5d}'.format(in_idx), datum.SerializeToString())
         print '{:0>5d}'.format(in_idx) + ':' + img_path
 in_db.close()
