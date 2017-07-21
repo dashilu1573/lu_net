@@ -31,11 +31,11 @@ namespace lu_net {
 
         // resize(int n,element)表示调整容器v的大小为n，调整后的每个元素的值为element，默认为0，
         // resize()会改变容器的容量和当前元素个数
-        layers.resize(num_layers);
+        as.resize(num_layers);
 
         //Generate every layer.
         for (int i = 0; i < num_layers; i++) {
-            layers[i] = VectorXf::Zero(layers_neuron_num[i]);
+            as[i] = VectorXf::Zero(layers_neuron_num[i]);
         }
         LOG(INFO) << "Genarate layers, sucessfully!";
 
@@ -57,8 +57,8 @@ namespace lu_net {
      **/
     void Net::initWeights(double w) {
         for (int i = 1; i < num_layers; i++) {
-            weights[i] = MatrixXf::Zero(layers[i].rows(), layers[i - 1].rows())
-                    .unaryExpr(ptr_fun(gaussian_random)) / sqrt(float(layers[i - 1].rows()));
+            weights[i] = MatrixXf::Zero(as[i].rows(), as[i - 1].rows())
+                    .unaryExpr(ptr_fun(gaussian_random)) / sqrt(float(as[i - 1].rows()));
         }
     }
 
@@ -68,19 +68,19 @@ namespace lu_net {
      * */
     void Net::initBias(double w) {
         for (int i = 1; i < num_layers; i++) {
-            bias[i] = VectorXf::Zero(layers[i].rows()).unaryExpr(ptr_fun(gaussian_random));
+            bias[i] = VectorXf::Zero(as[i].rows()).unaryExpr(ptr_fun(gaussian_random));
         }
     }
 
     // farward
     void Net::farward(VectorXf x) {
-        layers[0] = x;
+        as[0] = x;
 
         for (int i = 1; i < num_layers; i++){
             //weighted input
-            VectorXf z = weights[i] * layers[i - 1] + bias[i];
+            VectorXf z = weights[i] * as[i - 1] + bias[i];
             zs[i] = z;
-            layers[i] = activation::sigmoid::f(z);
+            as[i] = activation::sigmoid::f(z);
         }
     }
 
@@ -92,14 +92,14 @@ namespace lu_net {
     void Net::backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b) {
         // error of last layer
         // VectorXf delta = cost_derivative(layers[num_layers - 1], y).array() * sigmoid_prime(zs[num_layers -1]).array();
-        VectorXf delta = E::df(layers[num_layers - 1], y).array() * activation::sigmoid::df(zs[num_layers -1]).array();
+        VectorXf delta = E::df(as[num_layers - 1], y).array() * activation::sigmoid::df(zs[num_layers -1]).array();
         nabla_b[num_layers - 1] = delta;
-        nabla_w[num_layers - 1] = delta * layers[num_layers -2].transpose();
+        nabla_w[num_layers - 1] = delta * as[num_layers -2].transpose();
 
         for (int i = num_layers - 2; i >= 1; i--) {
             delta = (weights[i + 1].transpose() * delta).array() * activation::sigmoid::df(zs[i]).array();
             nabla_b[i] = delta;
-            nabla_w[i] = delta * layers[i - 1].transpose();
+            nabla_w[i] = delta * as[i - 1].transpose();
         }
     }
 
@@ -120,8 +120,8 @@ namespace lu_net {
 
         //initial all zeros;
         for (int i = 1; i < num_layers; i++) {
-            acum_nabla_w[i] = MatrixXf::Zero(layers[i].rows(), layers[i - 1].rows());
-            acum_nabla_b[i] = VectorXf::Zero(layers[i].rows());
+            acum_nabla_w[i] = MatrixXf::Zero(as[i].rows(), as[i - 1].rows());
+            acum_nabla_b[i] = VectorXf::Zero(as[i].rows());
         }
 
         vector<MatrixXf> delta_nabla_w;
@@ -151,7 +151,7 @@ namespace lu_net {
             farward(x);
             backward<E>(y, delta_nabla_w, delta_nabla_b);
 
-            float loss = E::f(layers[num_layers - 1], y);
+            float loss = E::f(as[num_layers - 1], y);
             batch_sum_loss += loss;
 
             //每个样本的改变累加到一起
@@ -320,7 +320,7 @@ namespace lu_net {
     label_t Net::fprop_max_index(const VectorXf &in) {
         farward(in);
         int max_index = 0;
-        layers[num_layers - 1].maxCoeff(&max_index);
+        as[num_layers - 1].maxCoeff(&max_index);
         return label_t(max_index);
     }
 

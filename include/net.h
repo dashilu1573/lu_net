@@ -93,11 +93,11 @@ namespace lu_net {
                   file_format format = file_format::binary);
 
     private:
-        std::vector<Eigen::VectorXf> layers;
+        std::vector<Eigen::VectorXf> as;    // Store all the a vectors (activation of the neuron), layer by layer.
         std::vector<Eigen::MatrixXf> weights;
         std::vector<Eigen::VectorXf> bias;
         std::vector<Eigen::VectorXf> gradient;
-        std::vector<Eigen::VectorXf> zs;    //store all the z vectors(weighted input), layer by layer
+        std::vector<Eigen::VectorXf> zs;    // Store all the z vectors(weighted input), layer by layer.
 
         /**
         * train on one minibatch.
