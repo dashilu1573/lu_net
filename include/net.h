@@ -27,6 +27,11 @@ namespace lu_net {
         json
     };
 
+    enum class net_phase {
+        train,
+        test
+    };
+
     struct result {
         result() : num_success(0), num_total(0) {}
 

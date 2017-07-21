@@ -23,6 +23,13 @@ namespace lu_net{
 
             static Eigen::VectorXf df(const Eigen::VectorXf &z);
         };
+
+        class tanh {
+        public:
+            static Eigen::VectorXf f(const Eigen::VectorXf &x);
+
+            static Eigen::VectorXf df(const Eigen::VectorXf &z);
+        };
     }
 }
 

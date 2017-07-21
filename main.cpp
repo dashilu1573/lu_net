@@ -8,6 +8,8 @@
 #include <glog/logging.h>
 #include <vector>
 #include "optimizer.h"
+#include "display.h"
+#include "dropout_layer.h"
 
 using namespace std;
 using namespace cv;
@@ -21,7 +23,7 @@ int main(int argc, char** argv) {
     // Print output to stderr (while still logging).
     FLAGS_alsologtostderr = 1;
     google::InitGoogleLogging(argv[0]);
-    FLAGS_log_dir = ".";   //设置log目录
+    FLAGS_log_dir = ".";   //set log directory
 
     vector<int> layers_neuron_num = {784, 100, 10};
 
@@ -44,6 +46,9 @@ int main(int argc, char** argv) {
     read_Mnist_Images(train_images_path, train_images);
     read_Mnist_Label(test_labels_path, test_labels);
     read_Mnist_Images(test_images_path, test_images);
+
+    timer t;
+    cout << t.elapsed() << "s elapsed." << std::endl;
 
     LOG(INFO) << "Initial test.";
 

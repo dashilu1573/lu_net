@@ -24,8 +24,8 @@ namespace lu_net {
             virtual ~optimizer() = default;
 
             // pure virtual function, must be defined in children class
-            virtual void update_w(const MatrixXf &dW, MatrixXf &W, const float alpha) = 0;
-            virtual void update_b(const VectorXf &dW, VectorXf &W, const float alpha) = 0;
+            virtual void update_w(MatrixXf &W, const MatrixXf &dW, const float alpha) = 0;
+            virtual void update_b(VectorXf &W, const VectorXf &dW, const float alpha) = 0;
         };
 
 
@@ -41,11 +41,11 @@ namespace lu_net {
 
             gradient_descent() {}
 
-            void update_w(const MatrixXf &dW, MatrixXf &W, const float alpha) override {
+            void update_w(MatrixXf &W, const MatrixXf &dW, const float alpha) override {
                 W = W - alpha * dW;
             }
 
-            void update_b(const VectorXf &dW, VectorXf &W, const float alpha) override {
+            void update_b(VectorXf &W, const VectorXf &dW, const float alpha) override {
                 W = W - alpha * dW;
             }
         };
@@ -65,13 +65,13 @@ namespace lu_net {
 
             momentum() : mu(0.9) {}
 
-            void update_w(const MatrixXf &dW, MatrixXf &W, const float alpha) override {
+            void update_w(MatrixXf &W, const MatrixXf &dW, const float alpha) override {
                 MatrixXf V = - alpha * dW + mu * dWprev_w[0];
                 W = W + V;
                 dWprev_w[0] = V;
             }
 
-            void update_b(const VectorXf &dW, VectorXf &W, const float alpha) override {
+            void update_b(VectorXf &W, const VectorXf &dW, const float alpha) override {
                 MatrixXf V = - alpha * dW + mu * dWprev_b[0];
                 W = W + V;
                 dWprev_b[0] = V;

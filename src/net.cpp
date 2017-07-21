@@ -165,10 +165,10 @@ namespace lu_net {
         for (int k = 1; k < num_layers; ++k) {
             // L2 Regular weights[k] = ( 1 - learning_rate * (lmbda / n) ) * weights[k] - learning_rate / batch_size * acum_nabla_w[k];
             MatrixXf avg_nabla_w = acum_nabla_w[k] / batch_size;
-            optimizer.update_w(avg_nabla_w, weights[k], learning_rate);
+            optimizer.update_w(weights[k], avg_nabla_w, learning_rate);
 
             VectorXf avg_nabla_b = acum_nabla_b[k] / batch_size;
-            optimizer.update_b(avg_nabla_b, bias[k], learning_rate);
+            optimizer.update_b(bias[k], avg_nabla_b, learning_rate);
         }
 
         // Average of loss.

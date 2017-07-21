@@ -29,6 +29,15 @@ namespace lu_net {
             VectorXf tmp1 = VectorXf::Ones(z.rows());
             return (z.array() <= 0).select(tmp0, tmp1);
         }
+
+        VectorXf tanh::f(const VectorXf &x) {
+            VectorXf res = x.array().tanh();
+            return res;
+        }
+
+        VectorXf tanh::df(const VectorXf &z) {
+            return 1.0 - z.array().square();
+        }
     }
 }
 
