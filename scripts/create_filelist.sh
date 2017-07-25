@@ -1,9 +1,19 @@
-# /usr/bin/env sh
+#!/usr/bin/env bash
+
 DATA=../data/images
-echo "Create train.txt..."
+echo "create train.txt..."
 rm -rf $DATA/train.txt
-find $DATA -name *cat.jpg | cut -d '/' -f3 | sed "s/$/ 1/">>$DATA/train.txt
-find $DATA -name *bike.jpg | cut -d '/' -f3 | sed "s/$/ 2/">>$DATA/tmp.txt
-cat $DATA/tmp.txt>>$DATA/train.txt
-rm -rf $DATA/tmp.txt
+for i in Black_Footed_Albatross Common_Yellowthroat
+do
+find $DATA/train -name $i_*.png | cut -d '/' -f2-6 | sed "s/$/ $i/" >> $DATA/train.txt
+done
+
+DATA=../data/images
+echo "create val.txt..."
+rm -rf $DATA/val.txt
+for i in Black_Footed_Albatross Common_Yellowthroat
+do
+find $DATA/val -name $i_*.png | cut -d '/' -f2-6 | sed "s/$/ $i/" >> $DATA/val.txt
+done
+
 echo "Done.."
