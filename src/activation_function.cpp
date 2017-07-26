@@ -1,5 +1,5 @@
 //
-// Created by 芦yafei  on 17/7/14.
+// Created by 芦yafei  on 14/2/14.
 //
 #include <eigen3/Eigen/Dense>
 #include "activation_function.h"

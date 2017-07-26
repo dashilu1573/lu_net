@@ -25,12 +25,12 @@ namespace lu_net {
         this->layers_neuron_num = layers_neuron_num;
         num_layers = layers_neuron_num.size();
         this->learning_rate = learning_rate;
-        fine_tune_factor = 1;    // finetune factor of learning rate.
+        fine_tune_factor = 1;    // Finetune factor of learning rate.
         this->lmbda = lmbda;
-        output_interval = 1;  //设置训练loss输出间隔,epoch为单位
+        output_interval = 1;  // Interval of loss print out, measured in epoch
 
-        // resize(int n,element)表示调整容器v的大小为n，调整后的每个元素的值为element，默认为0，
-        // resize()会改变容器的容量和当前元素个数
+        // Resize(int n,element)表示调整容器v的大小为n，调整后的每个元素的值为element，默认为0，
+        // Resizes the container so that it contains n elements.
         as.resize(num_layers);
 
         //Generate every layer.
@@ -91,7 +91,7 @@ namespace lu_net {
     template <typename E>
     void Net::backward(const VectorXf &y, vector<MatrixXf> &nabla_w, vector<VectorXf> &nabla_b) {
         // error of last layer
-        // VectorXf delta = cost_derivative(layers[num_layers - 1], y).array() * sigmoid_prime(zs[num_layers -1]).array();
+        // VectorXf delta = cost_derivative(layers[num_layers - Black_Footed_Albatross], y).array() * sigmoid_prime(zs[num_layers -Black_Footed_Albatross]).array();
         VectorXf delta = E::df(as[num_layers - 1], y).array() * activation::sigmoid::df(zs[num_layers -1]).array();
         nabla_b[num_layers - 1] = delta;
         nabla_w[num_layers - 1] = delta * as[num_layers -2].transpose();
@@ -111,14 +111,14 @@ namespace lu_net {
      * */
     template <typename E, typename Optimizer>
     void Net::update_batch(Optimizer &optimizer, const vector<tensor_t>& in, const vector<tensor_t>& t, int batch_size, int n) {
-        //累加到一起的改变
+        // Change accumulated
         vector<MatrixXf> acum_nabla_w;
         acum_nabla_w.resize(num_layers);
 
         vector<VectorXf> acum_nabla_b;
         acum_nabla_b.resize(num_layers);
 
-        //initial all zeros;
+        // Initial all zeros;
         for (int i = 1; i < num_layers; i++) {
             acum_nabla_w[i] = MatrixXf::Zero(as[i].rows(), as[i - 1].rows());
             acum_nabla_b[i] = VectorXf::Zero(as[i].rows());
@@ -130,13 +130,13 @@ namespace lu_net {
         vector<VectorXf> delta_nabla_b;
         delta_nabla_b.resize(num_layers);
 
-        //一个batch里的loss累加
+        // Accumulate loss in a batch
         float batch_sum_loss = 0.0;
 
-        //一个样本一个样本的训练
+        // Train samples one by one
         for(int i = 0; i < batch_size; i++) {
-            //从std::vector转成Eigen形式
-            //VectorXf x(&in[i][0], in[i][0].size());
+            // Convert from std::vector to Eigen
+            // VectorXf x(&in[i][0], in[i][0].size());
             VectorXf x(in[i][0].size());
             VectorXf y(t[i][0].size());
 
@@ -154,7 +154,7 @@ namespace lu_net {
             float loss = E::f(as[num_layers - 1], y);
             batch_sum_loss += loss;
 
-            //每个样本的改变累加到一起
+            // Accumulate changes of all samples
             for (int j = 1; j < num_layers; ++j) {
                 acum_nabla_w[j] = acum_nabla_w[j] + delta_nabla_w[j];
                 acum_nabla_b[j] = acum_nabla_b[j] + delta_nabla_b[j];
@@ -163,7 +163,7 @@ namespace lu_net {
 
         // 一批样本改变的平均值作为最后的改变
         for (int k = 1; k < num_layers; ++k) {
-            // L2 Regular weights[k] = ( 1 - learning_rate * (lmbda / n) ) * weights[k] - learning_rate / batch_size * acum_nabla_w[k];
+            // L2 Regular weights[k] = ( Black_Footed_Albatross - learning_rate * (lmbda / n) ) * weights[k] - learning_rate / batch_size * acum_nabla_w[k];
             MatrixXf avg_nabla_w = acum_nabla_w[k] / batch_size;
             optimizer.update_w(weights[k], avg_nabla_w, learning_rate);
 

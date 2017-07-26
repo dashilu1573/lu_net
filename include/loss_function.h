@@ -12,12 +12,14 @@
 namespace lu_net {
 
     // mean-squared-error loss function for regression
-    class mse {
+    class MSE {
     public:
         // Return the cost associated with an output and desired output target
+        static float_t f(const float_t &output, const float_t &target);
         static float_t f(const Eigen::VectorXf &output, const Eigen::VectorXf &target);
 
         // gradient
+        static float_t df(const float_t &output, const float_t &target);
         static Eigen::VectorXf df(const Eigen::VectorXf &output, const Eigen::VectorXf &target);
     };
 

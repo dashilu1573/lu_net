@@ -42,13 +42,13 @@ def make_datum(img, label):
         label=label,
         data=np.rollaxis(img, 2).tostring())
 
-train_list_file = '../data/images/train.txt'
-train_images_root = '../data/images/train'
-test_list_file = '../data/images/test.txt'
-test_images_root = '../data/images/test'
+train_list_file = '../data/cifar-10/train.txt'
+train_images_root = '../data/cifar-10/train'
+test_list_file = '../data/cifar-10/val.txt'
+test_images_root = '../data/cifar-10/val'
 
-train_lmdb = '../data/images/train_lmdb'
-validation_lmdb = '../data/images/validation_lmdb'
+train_lmdb = '../data/cifar-10/train_lmdb'
+validation_lmdb = '../data/cifar-10/validation_lmdb'
 
 os.system('rm -rf  ' + train_lmdb)
 os.system('rm -rf  ' + validation_lmdb)

@@ -10,7 +10,7 @@ include_directories(include)
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
-set(SOURCE_FILES main.cpp src/net.cpp src/function.cpp src/io.cpp src/loss_function.cpp proto/lu.pb.cc src/activation_function.cpp)
+set(SOURCE_FILES main.cpp src/net.cpp src/function.cpp src/io.cpp src/loss_function.cpp proto/lu.pb.cc src/activation_function.cpp src/lstm.cpp)
 
 add_executable(lu_net ${SOURCE_FILES})
 

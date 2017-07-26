@@ -1,5 +1,5 @@
 //
-// Created by 芦yafei  on 17/7/19.
+// Created by 芦yafei  on 14/2/19.
 //
 #ifndef LU_NET_DROPOUT_H
 #define LU_NET_DROPOUT_H

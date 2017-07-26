@@ -15,7 +15,7 @@ using namespace std;
 using namespace cv;
 using namespace lu_net;
 
-DEFINE_string(data_dir, "/Users/luyafei/GitHub/lu_net/data", "Data directory");
+DEFINE_string(data_dir, "/Users/luyafei/GitHub/lu_net/data/mnist", "Data directory");
 
 int main(int argc, char** argv) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -50,10 +50,10 @@ int main(int argc, char** argv) {
     timer t;
     cout << t.elapsed() << "s elapsed." << std::endl;
 
-    LOG(INFO) << "Initial test.";
+    LOG(INFO) << "Initial val.";
 
     result initial_test = net.test(test_images, test_labels);
-    LOG(INFO) << "Initial test accuracy:" << initial_test.accuracy();
+    LOG(INFO) << "Initial val accuracy:" << initial_test.accuracy();
 
     LOG(INFO) << "start learning";
     int minibatch_size = 10;
@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
     net.train<cross_entropy>(op, train_images, train_labels, minibatch_size, num_epochs);
     LOG(INFO) << "End training.";
 
-    LOG(INFO) << "Start test.";
+    LOG(INFO) << "Start val.";
     result test_result = net.test(test_images, test_labels);
     LOG(INFO) << "Test accuracy:" << test_result.accuracy();
 

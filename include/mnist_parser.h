@@ -27,7 +27,7 @@ void read_Mnist_Label(string filename, vector<label_t> &labels) {
         magic_number = ReverseInt(magic_number);
         number_of_images = ReverseInt(number_of_images);
         //cout << "magic number = " << magic_number << endl;
-        //cout << "number of images = " << number_of_images << endl;
+        //cout << "number of cifar-10 = " << number_of_images << endl;
 
         for (int i = 0; i < number_of_images; i++) {
             unsigned char label = 0;

@@ -53,9 +53,9 @@ namespace lu_net {
         std::vector<int> layers_neuron_num;
         int num_layers = 0;
         float learning_rate = 0.0;
-        float lmbda = 0.0;              // regularization parameter, vary with the trainnig data size.
-        float batch_loss = 0.0;         // loss of a batch of data.
-        int output_interval = 0;        // 设置训练loss输出间隔,epoch为单位
+        float lmbda = 0.0;              // Regularization parameter, vary with the trainnig data size.
+        float batch_loss = 0.0;         // Loss of a batch of data.
+        int output_interval = 0;        // Interval of loss print out, measured in epoch
         float fine_tune_factor = 0.0;   // finetune factor of learning rate.
 
         // initialize net:generate weights matrices、layer matrices and bias matrices

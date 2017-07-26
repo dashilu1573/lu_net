@@ -1,5 +1,5 @@
 //
-// Created by 芦yafei  on 17/7/19.
+// Created by 芦yafei  on 14/2/19.
 //
 #include "dropout_layer.h"
 #include "random.h"
