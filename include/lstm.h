@@ -36,7 +36,7 @@ namespace lu_net{
 
         int concat_len_ = 0;        // Input dimensions of LSTM cell(LSTM cell num + dimensions of input x)
 
-        // Diffs (derivative of loss function w.r.t. all parameters)
+        // Diffs (derivative of loss function for all parameters)
         Eigen::MatrixXf wg_diff;
         Eigen::MatrixXf wi_diff;
         Eigen::MatrixXf wf_diff;
@@ -60,8 +60,8 @@ namespace lu_net{
         Eigen::VectorXf i;
         Eigen::VectorXf f;
         Eigen::VectorXf o;
-        Eigen::VectorXf s;  // internal state
-        Eigen::VectorXf h;  // the values output by each memory cell in the hidden layer
+        Eigen::VectorXf s;              // internal state
+        Eigen::VectorXf h;              // the values output by each memory cell in the hidden layer
         Eigen::VectorXf bottom_diff_h;
         Eigen::VectorXf bottom_diff_s;
 
@@ -74,14 +74,18 @@ namespace lu_net{
 
         ~LstmNode();
 
-        void bottom_data_is(Eigen::VectorXf x);
+        /**
+        * Forward propagation
+        * **/
+        void farward_prop(Eigen::VectorXf x);
 
         /**
-         *
+         * Forward propagation
          * @s_prev: s in t - 1
          * @h_prev: h in t - 1
          * **/
-        void bottom_data_is(Eigen::VectorXf x, Eigen::VectorXf s_prev, Eigen::VectorXf h_prev);
+        void farward_prop(Eigen::VectorXf x, Eigen::VectorXf s_prev, Eigen::VectorXf h_prev);
+
 
         void top_diff_is(Eigen::VectorXf top_diff_h, Eigen::VectorXf top_diff_s);
 
