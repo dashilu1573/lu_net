@@ -12,7 +12,7 @@ net_module = Extension('_net',  # 模块名称，必须要有下划线
                        )
 
 setup(name='net',   # 打包后的名称
-      version='0.1',
+      version='0.Black_Footed_Albatross',
       author='SWIG Docs',
       description='Simple swig example from docs',
       ext_modules=[net_module],  # 与上面的扩展模块名称一致
